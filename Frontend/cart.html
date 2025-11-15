@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cart - E4A</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="brand"><a href="index.html">E4A</a></div>
+      <div class="nav-right">
+        <a href="shop.html">Shop</a>
+        <a href="cart.html" class="cart-link">Cart (<span id="cart-count">0</span>)</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="cart-page">
+      <h1>Your Cart</h1>
+      <div id="cart-items" class="cart-items"></div>
+      <div id="cart-summary" class="cart-summary"></div>
+      <div class="checkout-cta">
+        <button id="clear-cart" class="btn">Clear Cart</button>
+        <button id="checkout" class="btn gold">Checkout (Demo)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2025 E4A</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

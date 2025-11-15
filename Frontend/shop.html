@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Shop - E4A</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="brand"><a href="index.html">E4A</a></div>
+      <div class="search">
+        <input id="global-search-shop" type="search" placeholder="Search products, categories, brands..." />
+        <button id="search-btn-shop">Search</button>
+      </div>
+      <div class="nav-right">
+        <a href="shop.html">Shop</a>
+        <a href="cart.html" class="cart-link">Cart (<span id="cart-count">0</span>)</a>
+        <a href="signin.html" class="btn small">Sign in</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="shop-top">
+      <div class="left">
+        <h1>Shop All Products</h1>
+        <p class="muted">Browse categories or search to find what you need.</p>
+      </div>
+      <div class="right filters">
+        <label>Category</label>
+        <select id="category-filter">
+          <option value="All">All</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="products">
+      <div id="shop-grid" class="product-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2025 E4A</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
