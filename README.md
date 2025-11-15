@@ -217,6 +217,10 @@ For issues or questions, check:
 - Browser console: DevTools F12
 - Network tab: Check API responses
 
+## Author
+
+Tosin Aladesae (Trinity)
+
 ## License
 
 MIT - Free to use and modify
