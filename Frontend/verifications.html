@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verifications - E4A</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .verification-page {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .verification-form {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 30px;
+      background: white;
+      max-width: 500px;
+      margin: 30px 0;
+    }
+    .verification-form label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+    .verification-form input,
+    .verification-form select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .verification-form button {
+      width: 100%;
+      padding: 12px;
+      background: #d4af37;
+      color: #333;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .verification-form button:hover {
+      background: #c9a227;
+    }
+    .verification-status {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid;
+    }
+    .verification-status.approved {
+      background: #e8f5e9;
+      border-color: #4caf50;
+      color: #2e7d32;
+    }
+    .verification-status.pending {
+      background: #fff3e0;
+      border-color: #ff9800;
+      color: #e65100;
+    }
+    .verification-status.rejected {
+      background: #ffebee;
+      border-color: #f44336;
+      color: #c62828;
+    }
+    .verification-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-right: 10px;
+      background: #4caf50;
+      color: white;
+    }
+    .verification-list {
+      margin-top: 30px;
+    }
+    .verification-item {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 15px 0;
+      background: #f9f9f9;
+    }
+    .verification-item h3 {
+      margin: 0 0 10px 0;
+    }
+    .verification-item p {
+      margin: 5px 0;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="brand"><a href="index.html">E4A</a></div>
+      <div class="nav-right">
+        <a href="shop.html">Shop</a>
+        <a href="negotiations.html">Negotiations</a>
+        <a href="verifications.html" class="active">Verify</a>
+        <a href="seller-api.html">API</a>
+        <a href="cart.html" class="cart-link">Cart (<span id="cart-count">0</span>)</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="verification-page">
+      <h1>User Verification</h1>
+      <p>Verify your identity to build trust and unlock premium seller features.</p>
+
+      <div class="content-card">
+        <h2>Why Verify?</h2>
+        <ul style="line-height: 1.8; color: #666;">
+          <li>✓ Build trust with buyers and sellers</li>
+          <li>✓ Get a verified badge on your profile</li>
+          <li>✓ Unlock seller premium features</li>
+          <li>✓ Increase product visibility</li>
+          <li>✓ Faster transaction approvals</li>
+        </ul>
+      </div>
+
+      <div id="current-verifications" class="verification-list"></div>
+
+      <div class="verification-form">
+        <h3>Request Verification</h3>
+        <form id="verification-form">
+          <label for="verification-type">Verification Type</label>
+          <select id="verification-type" required>
+            <option value="">-- Select Type --</option>
+            <option value="identity">Identity (ID/Passport)</option>
+            <option value="phone">Phone Number</option>
+            <option value="address">Address</option>
+            <option value="seller_business">Seller Business License</option>
+          </select>
+
+          <label for="document-type">Document Type</label>
+          <select id="document-type" required>
+            <option value="">-- Select Document --</option>
+            <option value="national_id">National ID</option>
+            <option value="passport">Passport</option>
+            <option value="drivers_license">Driver's License</option>
+            <option value="utility_bill">Utility Bill</option>
+            <option value="business_license">Business License</option>
+          </select>
+
+          <label for="document-url">Document Image URL (or upload)</label>
+          <input type="text" id="document-url" placeholder="https://example.com/document.jpg" required />
+
+          <button type="submit">Submit Verification Request</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2025 E4A — Trusted Verification System</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    const API_BASE = '/api';
+    let currentUser = null;
+
+    async function loadVerifications() {
+      try {
+        const user = JSON.parse(localStorage.getItem('e4a_user'));
+        if (!user) {
+          document.getElementById('current-verifications').innerHTML = '<p style="text-align:center;color:#f44336;">Please sign in to view verifications.</p>';
+          return;
+        }
+        currentUser = user;
+
+        const res = await fetch(`${API_BASE}/verifications/user/${user._id || user.id}`);
+        const verifications = await res.json();
+
+        const container = document.getElementById('current-verifications');
+        if (!verifications || verifications.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#999;">No verifications yet.</p>';
+          return;
+        }
+
+        container.innerHTML = '<h3>Your Verifications</h3>';
+        verifications.forEach(v => {
+          const statusClass = v.status;
+          const statusText = v.status.charAt(0).toUpperCase() + v.status.slice(1);
+          let html = `
+            <div class="verification-item">
+              <h4>${v.verificationType.toUpperCase()}</h4>
+              <p>Type: ${v.documentType}</p>
+              <p>Status: <strong class="verification-status ${statusClass}">${statusText}</strong></p>
+              <p>Requested: ${new Date(v.createdAt).toLocaleDateString()}</p>
+          `;
+
+          if (v.status === 'rejected') {
+            html += `<p style="color:#f44336;">Rejection reason: ${v.rejectionReason}</p>`;
+          }
+
+          html += '</div>';
+          container.innerHTML += html;
+        });
+      } catch (err) {
+        console.error('Error loading verifications:', err);
+      }
+    }
+
+    document.getElementById('verification-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const verificationType = document.getElementById('verification-type').value;
+      const documentType = document.getElementById('document-type').value;
+      const documentUrl = document.getElementById('document-url').value;
+
+      if (!currentUser) {
+        alert('Please sign in first');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/verifications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser._id || currentUser.id,
+            verificationType,
+            documentType,
+            documentUrl
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Verification request submitted! Our team will review and respond within 24-48 hours.');
+          document.getElementById('verification-form').reset();
+          loadVerifications();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error submitting verification: ' + err.message);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateCartCount();
+      loadVerifications();
+    });
+  </script>
+</body>
+</html>

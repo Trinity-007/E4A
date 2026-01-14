@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - E4A Marketplace</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
+        header { background: white; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { color: #d4af37; font-size: 1.5rem; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .checkout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { .checkout-grid { grid-template-columns: 1fr; } }
+        
+        .section { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .section h2 { color: #d4af37; margin-bottom: 1.5rem; font-size: 1.3rem; border-bottom: 2px solid #d4af37; padding-bottom: 0.5rem; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
+        input, select, textarea { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 5px rgba(212,175,55,0.3); }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .order-summary { background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .order-summary h3 { color: #333; margin-bottom: 1rem; }
+        .item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .item:last-child { border-bottom: none; }
+        .item span:first-child { color: #666; }
+        .item span:last-child { font-weight: 600; color: #d4af37; }
+        
+        .total { display: flex; justify-content: space-between; padding: 1rem 0; font-size: 1.2rem; font-weight: bold; color: #333; border-top: 2px solid #d4af37; margin-top: 1rem; }
+        .total span:last-child { color: #d4af37; font-size: 1.5rem; }
+        
+        .buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+        .btn { flex: 1; padding: 0.8rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn.primary { background: #d4af37; color: white; }
+        .btn.primary:hover { background: #b8941f; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212,175,55,0.3); }
+        .btn.secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+        .btn.secondary:hover { background: #e0e0e0; }
+        
+        .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .payment-option { padding: 1rem; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .payment-option:hover { border-color: #d4af37; background: #fafaf8; }
+        .payment-option input[type="radio"] { display: none; }
+        .payment-option input[type="radio"]:checked + label { color: #d4af37; font-weight: bold; }
+        
+        .delivery-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .delivery-option { padding: 1rem; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; transition: all 0.3s; }
+        .delivery-option:hover { border-color: #d4af37; background: #fafaf8; }
+        .delivery-option input[type="radio"] { display: none; }
+        .delivery-option input[type="radio"]:checked + label { color: #d4af37; font-weight: bold; }
+        .delivery-cost { color: #666; font-size: 0.9rem; margin-top: 0.3rem; }
+        
+        .error { color: #d32f2f; padding: 1rem; background: #ffebee; border-radius: 4px; margin-bottom: 1rem; display: none; }
+        .success { color: #388e3c; padding: 1rem; background: #e8f5e9; border-radius: 4px; margin-bottom: 1rem; display: none; }
+        
+        .loading { text-align: center; padding: 2rem; display: none; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #d4af37; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .navbar { background: white; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .navbar a { color: #d4af37; text-decoration: none; margin-right: 1.5rem; font-weight: 500; }
+        .navbar a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🛒 E4A Marketplace - Checkout</h1>
+    </header>
+
+    <nav class="navbar">
+        <a href="index.html">← Back to Shop</a>
+    </nav>
+
+    <div class="container">
+        <div class="error" id="error-msg"></div>
+        <div class="success" id="success-msg"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your order...</p>
+        </div>
+
+        <form id="checkout-form" class="checkout-grid">
+            <!-- Left Column: Delivery & Payment -->
+            <div>
+                <!-- Delivery Information -->
+                <div class="section">
+                    <h2>📍 Delivery Address</h2>
+                    
+                    <div class="form-group">
+                        <label for="full-name">Full Name *</label>
+                        <input type="text" id="full-name" name="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+234..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="street">Street Address *</label>
+                        <input type="text" id="street" name="street" placeholder="123 Main Street" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State/Region *</label>
+                            <input type="text" id="state" name="state" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postal">Postal Code *</label>
+                            <input type="text" id="postal" name="postal">
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country *</label>
+                            <input type="text" id="country" name="country" value="Nigeria" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="instructions">Delivery Instructions (Optional)</label>
+                        <textarea id="instructions" name="instructions" rows="3" placeholder="e.g., Gate code, best time to deliver..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Delivery Method -->
+                <div class="section">
+                    <h2>🚚 Delivery Method</h2>
+                    <div class="delivery-methods">
+                        <div class="delivery-option">
+                            <input type="radio" id="delivery-standard" name="deliveryMethod" value="standard" checked>
+                            <label for="delivery-standard">
+                                Standard Delivery
+                                <div class="delivery-cost">3-5 business days • ₦500</div>
+                            </label>
+                        </div>
+                        <div class="delivery-option">
+                            <input type="radio" id="delivery-express" name="deliveryMethod" value="express">
+                            <label for="delivery-express">
+                                Express Delivery
+                                <div class="delivery-cost">1-2 business days • ₦1,500</div>
+                            </label>
+                        </div>
+                        <div class="delivery-option">
+                            <input type="radio" id="delivery-overnight" name="deliveryMethod" value="overnight">
+                            <label for="delivery-overnight">
+                                Overnight Delivery
+                                <div class="delivery-cost">Next day • ₦2,500</div>
+                            </label>
+                        </div>
+                        <div class="delivery-option">
+                            <input type="radio" id="delivery-pickup" name="deliveryMethod" value="pickup">
+                            <label for="delivery-pickup">
+                                Store Pickup
+                                <div class="delivery-cost">Free • 2-3 hours</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="section">
+                    <h2>💳 Payment Method</h2>
+                    <div class="payment-methods">
+                        <div class="payment-option">
+                            <input type="radio" id="payment-card" name="paymentMethod" value="card" checked>
+                            <label for="payment-card">💳 Debit Card</label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="payment-transfer" name="paymentMethod" value="transfer">
+                            <label for="payment-transfer">🏦 Bank Transfer</label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="payment-wallet" name="paymentMethod" value="wallet">
+                            <label for="payment-wallet">💰 E-Wallet</label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="payment-cod" name="paymentMethod" value="cod">
+                            <label for="payment-cod">📦 Cash on Delivery</label>
+                        </div>
+                    </div>
+
+                    <!-- Card Details (shown if card selected) -->
+                    <div id="card-details" style="display: none; margin-top: 1.5rem;">
+                        <div class="form-group">
+                            <label for="card-number">Card Number *</label>
+                            <input type="text" id="card-number" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="card-expiry">Expiry Date *</label>
+                                <input type="text" id="card-expiry" name="cardExpiry" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="card-cvv">CVV *</label>
+                                <input type="text" id="card-cvv" name="cardCVV" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div>
+                <div class="section">
+                    <h2>📦 Order Summary</h2>
+                    
+                    <div class="order-summary" id="items-summary">
+                        <!-- Items will be populated here -->
+                    </div>
+
+                    <div class="item">
+                        <span>Subtotal</span>
+                        <span id="subtotal">₦0</span>
+                    </div>
+                    <div class="item">
+                        <span>Delivery Fee</span>
+                        <span id="delivery-fee">₦500</span>
+                    </div>
+                    <div class="item">
+                        <span>Tax (5%)</span>
+                        <span id="tax">₦0</span>
+                    </div>
+                    <div class="total">
+                        <span>Total Amount</span>
+                        <span id="total-amount">₦0</span>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label for="order-notes">Order Notes (Optional)</label>
+                        <textarea id="order-notes" name="orderNotes" rows="3" placeholder="Any special requests or notes..."></textarea>
+                    </div>
+
+                    <!-- Promo Code -->
+                    <div class="form-group">
+                        <label for="promo-code">Promo Code (Optional)</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="promo-code" name="promoCode" placeholder="Enter promo code">
+                            <button type="button" class="btn secondary" onclick="applyPromoCode()" style="flex: 0 0 auto; width: 100px;">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- T&C -->
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label style="display: flex; align-items: center; margin-bottom: 0;">
+                            <input type="checkbox" id="agree-tc" name="agreeTc" required style="width: auto; margin-right: 0.5rem;">
+                            I agree to the Terms & Conditions and Privacy Policy
+                        </label>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="buttons">
+                        <button type="button" class="btn secondary" onclick="window.history.back()">← Continue Shopping</button>
+                        <button type="submit" class="btn primary">Complete Order ✓</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let cart = [];
+        const deliveryFees = { standard: 500, express: 1500, overnight: 2500, pickup: 0 };
+
+        function getCurrentUser() {
+            const user = localStorage.getItem('e4a_user');
+            if (!user) return null;
+            try {
+                return JSON.parse(user);
+            } catch {
+                return null;
+            }
+        }
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem('e4a_cart')) || [];
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('success-msg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function calculateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const deliveryFee = deliveryFees[document.querySelector('input[name="deliveryMethod"]:checked').value] || 0;
+            const tax = Math.round(subtotal * 0.05);
+            const total = subtotal + deliveryFee + tax;
+
+            document.getElementById('subtotal').textContent = '₦' + subtotal.toLocaleString();
+            document.getElementById('delivery-fee').textContent = '₦' + deliveryFee.toLocaleString();
+            document.getElementById('tax').textContent = '₦' + tax.toLocaleString();
+            document.getElementById('total-amount').textContent = '₦' + total.toLocaleString();
+        }
+
+        function renderItems() {
+            const container = document.getElementById('items-summary');
+            container.innerHTML = cart.map(item => `
+                <div class="item">
+                    <span>${item.name}</span>
+                    <span>₦${item.price.toLocaleString()}</span>
+                </div>
+            `).join('');
+            calculateTotals();
+        }
+
+        function applyPromoCode() {
+            const code = document.getElementById('promo-code').value.trim().toUpperCase();
+            const promoCodes = {
+                'WELCOME10': 0.10,
+                'SAVE20': 0.20,
+                'LUCKY50': 0.50
+            };
+            if (promoCodes[code]) {
+                alert(`Promo code applied! ${Math.round(promoCodes[code] * 100)}% discount`);
+                calculateTotals();
+            } else {
+                alert('Invalid promo code');
+            }
+        }
+
+        // Show/hide card details based on payment method
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('card-details').style.display = 
+                    document.getElementById('payment-card').checked ? 'block' : 'none';
+            });
+        });
+
+        // Update delivery fee on method change
+        document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
+            radio.addEventListener('change', calculateTotals);
+        });
+
+        // Handle form submission
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const user = getCurrentUser();
+            if (!user) {
+                showError('Please sign in to checkout');
+                window.location = 'signin.html';
+                return;
+            }
+
+            if (!document.getElementById('agree-tc').checked) {
+                showError('Please agree to Terms & Conditions');
+                return;
+            }
+
+            // Collect form data
+            const deliveryInfo = {
+                fullName: document.getElementById('full-name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                street: document.getElementById('street').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                postal: document.getElementById('postal').value,
+                country: document.getElementById('country').value,
+                instructions: document.getElementById('instructions').value
+            };
+
+            const orderData = {
+                items: cart,
+                contact: {
+                    name: user.name || deliveryInfo.fullName,
+                    email: user.email || deliveryInfo.email
+                },
+                delivery: deliveryInfo,
+                deliveryMethod: document.querySelector('input[name="deliveryMethod"]:checked').value,
+                paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+                orderNotes: document.getElementById('order-notes').value,
+                total: parseInt(document.getElementById('total-amount').textContent.replace('₦', '').replace(/,/g, ''))
+            };
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const res = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await res.json();
+                document.getElementById('loading').style.display = 'none';
+
+                if (res.ok && (data.success || data.order)) {
+                    localStorage.removeItem('e4a_cart');
+                    showSuccess('✅ Order placed successfully! Check your email for confirmation.');
+                    setTimeout(() => window.location = 'index.html', 3000);
+                } else {
+                    throw new Error(data.error || 'Order creation failed');
+                }
+            } catch (err) {
+                document.getElementById('loading').style.display = 'none';
+                console.error('Checkout error:', err);
+                showError('Error: ' + err.message);
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            cart = getCart();
+            const user = getCurrentUser();
+            
+            if (!user) {
+                showError('Please sign in first');
+                setTimeout(() => window.location = 'signin.html', 2000);
+                return;
+            }
+
+            if (!cart || cart.length === 0) {
+                showError('Your cart is empty');
+                setTimeout(() => window.location = 'shop.html', 2000);
+                return;
+            }
+
+            // Pre-fill user info
+            document.getElementById('full-name').value = user.name || '';
+            document.getElementById('email').value = user.email || '';
+            
+            renderItems();
+        });
+    </script>
+</body>
+</html>

@@ -142,9 +142,42 @@ function productCardElement(p, showCategory = false) {
       <div>
         <button class="btn small" onclick="viewProduct(${p.id})">View</button>
         <button class="btn gold" onclick="addToCart(${p.id})">Add</button>
+        <button class="btn small" onclick="makeOffer(${p.id}, '${p.name}', ${p.price})" style="background:#ff9800;color:white;">Offer</button>
       </div>
     </div>`;
   return card;
+}
+
+function makeOffer(productId, productName, price) {
+  const user = getCurrentUser();
+  if (!user) {
+    alert('Please sign in to make an offer');
+    window.location = 'signin.html';
+    return;
+  }
+
+  const offeredPrice = prompt(`Make an offer for ${productName} (Current: $${price}):`, Math.floor(price * 0.8));
+  if (!offeredPrice || offeredPrice <= 0) return;
+
+  fetch(`${API_BASE}/negotiations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      productId: productId,
+      buyerId: user._id || user.id,
+      offeredPrice: Number(offeredPrice)
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert(`Offer sent! View your negotiations at negotiations.html`);
+        window.location = 'negotiations.html';
+      } else {
+        alert('Error: ' + (data.error || 'Failed to make offer'));
+      }
+    })
+    .catch(err => alert('Error: ' + err.message));
 }
 
 // PRODUCT DETAIL
@@ -168,9 +201,13 @@ function renderProductDetail(id) {
           <p class="muted">${product.category}</p>
           <h2 style="color:#06112b;margin-top:12px">$${product.price}</h2>
           <p style="margin:14px 0">${product.description}</p>
-          <div style="display:flex;gap:10px">
+          <div style="display:flex;gap:10px;margin:15px 0;">
             <button class="btn gold" onclick="addToCart(${product.id})">Add to Cart</button>
+            <button class="btn" onclick="makeOffer(${product.id}, '${product.name}', ${product.price})" style="background:#ff9800;color:white;">Make Offer</button>
             <button class="btn" onclick="window.location='shop.html'">Continue Shopping</button>
+          </div>
+          <div style="margin-top:20px;padding:15px;background:#f5f5f5;border-radius:8px;">
+            <p style="margin:0;font-size:12px;color:#666;">💡 Tip: Use "Make Offer" to negotiate the price with the seller!</p>
           </div>
         </div>
       </div>
@@ -227,48 +264,20 @@ function saveOrders(orders) {
 }
 
 function checkout() {
-  if (!CART || CART.length === 0) return alert('Your cart is empty');
-  const current = getCurrentUser();
-  let contact = current ? { name: current.name, email: current.email } : null;
-  if (!contact) {
-    const name = prompt('Enter your full name for this order:');
-    if (!name) return alert('Checkout cancelled');
-    const email = prompt('Enter your email for order confirmation:');
-    if (!email) return alert('Checkout cancelled');
-    contact = { name, email };
+  if (!CART || CART.length === 0) {
+    alert('Your cart is empty');
+    return;
   }
-
-  const total = CART.reduce((s, i) => s + i.price, 0);
-  const orderData = { items: CART.slice(), contact, total };
-
-  // Try backend first
-  fetch(`${API_BASE}/orders`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(orderData)
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success || data.order) {
-        CART = [];
-        saveCart();
-        renderOrderConfirmation(data.order);
-      } else {
-        throw new Error(data.error || 'Order failed');
-      }
-    })
-    .catch(err => {
-      console.warn('Backend unavailable, saving locally:', err.message);
-      // Fallback to localStorage
-      const id = 'ORD-' + Date.now();
-      const order = { id, items: CART.slice(), total, contact, createdAt: new Date().toISOString() };
-      const orders = getOrders();
-      orders.push(order);
-      saveOrders(orders);
-      CART = [];
-      saveCart();
-      renderOrderConfirmation(order);
-    });
+  
+  const current = getCurrentUser();
+  if (!current) {
+    alert('Please sign in to checkout');
+    window.location = 'signin.html';
+    return;
+  }
+  
+  // Redirect to checkout page
+  window.location = 'checkout.html';
 }
 
 function renderOrderConfirmation(order) {
@@ -560,6 +569,26 @@ function setupPageHandlers() {
     const checkoutBtn = document.getElementById('checkout');
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', checkout);
+    }
+  }
+  
+  // Update navbar based on auth status
+  updateNavbarAuth();
+}
+
+function updateNavbarAuth() {
+  const token = localStorage.getItem('e4a_token');
+  const user = getCurrentUser();
+  const accountLink = document.getElementById('account-link');
+  const signinLink = document.getElementById('signin-link');
+  
+  if (accountLink && signinLink) {
+    if (token && user) {
+      accountLink.style.display = 'inline-block';
+      signinLink.style.display = 'none';
+    } else {
+      accountLink.style.display = 'none';
+      signinLink.style.display = 'inline-block';
     }
   }
 }

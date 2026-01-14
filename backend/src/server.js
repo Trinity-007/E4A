@@ -8,6 +8,9 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const uploadRoutes = require('./routes/upload');
+const negotiationRoutes = require('./routes/negotiations');
+const verificationRoutes = require('./routes/verifications');
+const sellerAPIRoutes = require('./routes/seller-api');
 
 const app = express();
 app.use(cors());
@@ -29,6 +32,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/negotiations', negotiationRoutes);
+app.use('/api/verifications', verificationRoutes);
+app.use('/api/seller', sellerAPIRoutes);
 
 // fallback
 app.get('*', (req, res) => {

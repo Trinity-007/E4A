@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - E4A Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f6f8fb; color: #10203b; }
+        
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 30px; background: linear-gradient(90deg,#06112b,#0d2546); color: #fff; position: sticky; top: 0; z-index: 50; }
+        .navbar h1 { font-size: 1.5rem; }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-right a { color: #fff; text-decoration: none; padding: 6px 10px; }
+        .nav-right .btn { background: #fff; color: #0d2546; border-radius: 6px; padding: 8px 12px; text-decoration: none; font-weight: 600; }
+        .nav-right .btn:hover { background: #f0f0f0; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .account-header { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2rem; margin-bottom: 3rem; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        @media (max-width: 768px) { .account-header { grid-template-columns: 1fr; } }
+        
+        .user-avatar { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #f0c674); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .user-info h2 { margin-bottom: 0.5rem; color: #06112b; }
+        .user-info p { color: #666; font-size: 0.9rem; margin-bottom: 0.3rem; }
+        .user-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center; }
+        .stat { padding: 1rem; background: #f0f0f0; border-radius: 8px; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: #d4af37; }
+        .stat-label { font-size: 0.8rem; color: #666; margin-top: 0.3rem; }
+        
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .action-btn { padding: 1rem; background: white; border: 2px solid #d4af37; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 600; color: #d4af37; transition: all 0.3s; }
+        .action-btn:hover { background: #d4af37; color: white; }
+        .action-btn i { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+        
+        .main-content { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; margin-bottom: 2rem; }
+        @media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } }
+        
+        .tab-section { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        .tabs { display: flex; border-bottom: 2px solid #eee; overflow-x: auto; }
+        .tab { padding: 1rem 1.5rem; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; color: #666; transition: all 0.3s; white-space: nowrap; }
+        .tab:hover { color: #d4af37; }
+        .tab.active { color: #d4af37; border-bottom-color: #d4af37; }
+        
+        .tab-content { display: none; padding: 2rem; }
+        .tab-content.active { display: block; }
+        
+        .order-card { background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #d4af37; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .order-id { font-weight: bold; color: #06112b; }
+        .order-status { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .status-delivered { background: #c8e6c9; color: #2e7d32; }
+        .status-pending { background: #fff9c4; color: #f57f17; }
+        .status-cancelled { background: #ffcdd2; color: #c62828; }
+        .order-items { font-size: 0.9rem; color: #666; margin-bottom: 0.5rem; }
+        .order-total { font-weight: bold; color: #d4af37; }
+        .order-date { font-size: 0.8rem; color: #999; }
+        .order-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+        .order-btn { padding: 0.5rem 1rem; background: #d4af37; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .order-btn:hover { background: #b8941f; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #999; }
+        .empty-state p { margin-bottom: 1rem; }
+        .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+        
+        .inbox-item { padding: 1rem; border-bottom: 1px solid #eee; }
+        .inbox-item:last-child { border-bottom: none; }
+        .inbox-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .inbox-from { font-weight: bold; color: #06112b; }
+        .inbox-time { font-size: 0.8rem; color: #999; }
+        .inbox-subject { color: #666; margin-bottom: 0.3rem; }
+        .inbox-preview { font-size: 0.9rem; color: #999; }
+        
+        .review-card { padding: 1.5rem; border-bottom: 1px solid #eee; }
+        .review-product { font-weight: bold; color: #06112b; margin-bottom: 0.5rem; }
+        .review-time { font-size: 0.8rem; color: #999; margin-bottom: 1rem; }
+        .review-form textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .review-buttons { display: flex; gap: 0.5rem; }
+        .review-btn { padding: 0.5rem 1rem; background: #d4af37; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .review-btn:hover { background: #b8941f; }
+        
+        .wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+        .wishlist-item { background: #f9f9f9; border-radius: 8px; padding: 1rem; text-align: center; position: relative; }
+        .wishlist-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 0.5rem; }
+        .wishlist-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 0.3rem; }
+        .wishlist-price { color: #d4af37; font-weight: bold; margin-bottom: 0.5rem; }
+        .wishlist-remove { padding: 0.4rem 0.8rem; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .wishlist-remove:hover { background: #da190b; }
+        
+        .form-section { margin-bottom: 2rem; }
+        .form-section h3 { margin-bottom: 1rem; color: #06112b; border-bottom: 2px solid #d4af37; padding-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+        
+        .address-card { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .address-title { font-weight: bold; margin-bottom: 0.5rem; }
+        .address-text { font-size: 0.9rem; color: #666; margin-bottom: 0.3rem; }
+        .address-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .address-btn { padding: 0.4rem 0.8rem; background: #d4af37; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .address-btn:hover { background: #b8941f; }
+        
+        .sidebar { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 1.5rem; height: fit-content; }
+        .sidebar h3 { margin-bottom: 1rem; color: #06112b; }
+        .sidebar-section { margin-bottom: 1.5rem; }
+        .sidebar-section a { display: block; padding: 0.8rem; color: #666; text-decoration: none; border-radius: 4px; margin-bottom: 0.3rem; transition: all 0.3s; }
+        .sidebar-section a:hover { background: #f0f0f0; color: #d4af37; }
+        .sidebar-section a.active { background: #d4af37; color: white; }
+        
+        .voucher-code { display: inline-block; background: #f0f0f0; padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; margin: 0.5rem 0; }
+        .voucher-list { margin-top: 1rem; }
+        .voucher-item { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; }
+        .voucher-header { display: flex; justify-content: space-between; align-items: center; }
+        .voucher-discount { font-weight: bold; color: #d4af37; font-size: 1.2rem; }
+        .voucher-expiry { font-size: 0.8rem; color: #999; }
+        .voucher-desc { font-size: 0.9rem; color: #666; margin-top: 0.3rem; }
+        
+        .logout-btn { width: 100%; padding: 0.8rem; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 1rem; }
+        .logout-btn:hover { background: #da190b; }
+        
+        .save-btn { padding: 0.8rem 1.5rem; background: #d4af37; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .save-btn:hover { background: #b8941f; }
+        
+        .success-msg { background: #c8e6c9; color: #2e7d32; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🛍️ E4A Marketplace</h1>
+        <div class="nav-right">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a href="account.html" class="btn">My Account</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Account Header -->
+        <div class="account-header">
+            <div class="user-avatar">
+                <div class="avatar">👤</div>
+                <button class="action-btn" onclick="editAvatar()" style="border: none; background: #d4af37; color: white;">Change Avatar</button>
+            </div>
+
+            <div class="user-info">
+                <h2 id="user-name">Loading...</h2>
+                <p id="user-email">Loading...</p>
+                <p id="user-member">Member since: Loading...</p>
+                <div class="user-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="stat-orders">0</div>
+                        <div class="stat-label">Orders</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-reviews">0</div>
+                        <div class="stat-label">Reviews</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-wishlist">0</div>
+                        <div class="stat-label">Wishlist</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="action-btn" onclick="switchTab('orders')">
+                    <div>📦</div>
+                    My Orders
+                </div>
+                <div class="action-btn" onclick="switchTab('inbox')">
+                    <div>📧</div>
+                    Inbox
+                </div>
+                <div class="action-btn" onclick="switchTab('reviews')">
+                    <div>⭐</div>
+                    Reviews
+                </div>
+                <div class="action-btn" onclick="switchTab('wishlist')">
+                    <div>❤️</div>
+                    Wishlist
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="tab-section">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('orders')">My Orders</div>
+                    <div class="tab" onclick="switchTab('inbox')">Inbox</div>
+                    <div class="tab" onclick="switchTab('reviews')">Pending Reviews</div>
+                    <div class="tab" onclick="switchTab('wishlist')">Wishlist</div>
+                    <div class="tab" onclick="switchTab('recently')">Recently Viewed</div>
+                    <div class="tab" onclick="switchTab('vouchers')">Vouchers</div>
+                    <div class="tab" onclick="switchTab('settings')">Settings</div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div class="tab-content active" id="orders">
+                    <div id="orders-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <p>No orders yet</p>
+                            <a href="shop.html" class="action-btn" style="display: inline-block; text-decoration: none; padding: 0.5rem 1rem;">Start Shopping</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inbox Tab -->
+                <div class="tab-content" id="inbox">
+                    <div id="inbox-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">📧</div>
+                            <p>No messages</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div class="tab-content" id="reviews">
+                    <div id="reviews-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">⭐</div>
+                            <p>No pending reviews</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wishlist Tab -->
+                <div class="tab-content" id="wishlist">
+                    <div id="wishlist-container" class="wishlist-grid">
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <div class="empty-icon">❤️</div>
+                            <p>Your wishlist is empty</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recently Viewed Tab -->
+                <div class="tab-content" id="recently">
+                    <div id="recently-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">👁️</div>
+                            <p>No recently viewed items</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vouchers Tab -->
+                <div class="tab-content" id="vouchers">
+                    <div id="vouchers-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">🎟️</div>
+                            <p>No vouchers available</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="tab-content" id="settings">
+                    <!-- Account Management -->
+                    <div class="form-section">
+                        <h3>Account Management</h3>
+                        <div class="success-msg" id="save-msg">✅ Changes saved successfully!</div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="edit-name" placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="edit-email" placeholder="Enter your email" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="edit-phone" placeholder="Enter your phone number">
+                        </div>
+                        <button class="save-btn" onclick="saveProfile()">Save Profile</button>
+                    </div>
+
+                    <!-- Payment Settings -->
+                    <div class="form-section">
+                        <h3>Payment Settings</h3>
+                        <div class="form-group">
+                            <label>Default Payment Method</label>
+                            <select id="payment-method">
+                                <option value="card">Debit Card</option>
+                                <option value="transfer">Bank Transfer</option>
+                                <option value="wallet">E-Wallet</option>
+                                <option value="cod">Cash on Delivery</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Saved Cards</label>
+                            <div id="saved-cards-container">
+                                <p style="color: #999; font-size: 0.9rem;">No saved cards</p>
+                            </div>
+                            <button class="save-btn" style="margin-top: 1rem;" onclick="addCard()">Add New Card</button>
+                        </div>
+                    </div>
+
+                    <!-- Address Book -->
+                    <div class="form-section">
+                        <h3>Address Book</h3>
+                        <div id="addresses-container">
+                            <div style="color: #999; font-size: 0.9rem;">No saved addresses</div>
+                        </div>
+                        <button class="save-btn" style="margin-top: 1rem;" onclick="showAddressForm()">Add New Address</button>
+                    </div>
+
+                    <!-- New Address Form (Hidden by default) -->
+                    <div id="address-form" style="display: none; background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+                        <h4>Add New Address</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="addr-name" placeholder="Full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="addr-phone" placeholder="Phone number">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" id="addr-street" placeholder="Street address">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" id="addr-city" placeholder="City">
+                            </div>
+                            <div class="form-group">
+                                <label>State</label>
+                                <input type="text" id="addr-state" placeholder="State">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Postal Code</label>
+                                <input type="text" id="addr-postal" placeholder="Postal code">
+                            </div>
+                            <div class="form-group">
+                                <label>Country</label>
+                                <input type="text" id="addr-country" placeholder="Country" value="Nigeria">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="save-btn" onclick="saveAddress()">Save Address</button>
+                            <button class="save-btn" style="background: #999;" onclick="hideAddressForm()">Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- Logout -->
+                    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h3>Quick Links</h3>
+                <div class="sidebar-section">
+                    <a href="#orders" onclick="switchTab('orders')">📦 My Orders</a>
+                    <a href="#inbox" onclick="switchTab('inbox')">📧 Inbox</a>
+                    <a href="#reviews" onclick="switchTab('reviews')">⭐ Reviews</a>
+                    <a href="#wishlist" onclick="switchTab('wishlist')">❤️ Wishlist</a>
+                </div>
+                <div class="sidebar-section">
+                    <a href="#settings" onclick="switchTab('settings')">⚙️ Settings</a>
+                    <a href="shop.html">🛒 Continue Shopping</a>
+                    <a href="index.html">🏠 Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+
+        function getCurrentUser() {
+            const user = localStorage.getItem('e4a_user');
+            if (!user) {
+                window.location = 'signin.html';
+                return null;
+            }
+            try {
+                return JSON.parse(user);
+            } catch {
+                window.location = 'signin.html';
+                return null;
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            const tabContent = document.getElementById(tabName);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            }
+        }
+
+        function loadUserProfile() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            document.getElementById('user-name').textContent = user.name || 'User';
+            document.getElementById('user-email').textContent = user.email || '';
+            document.getElementById('user-member').textContent = 'Member since: Jan 2026';
+
+            // Pre-fill settings form
+            document.getElementById('edit-name').value = user.name || '';
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-phone').value = user.phone || '';
+        }
+
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('e4a_orders')) || [];
+            const container = document.getElementById('orders-container');
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <p>No orders yet</p>
+                        <a href="shop.html" class="action-btn" style="display: inline-block; text-decoration: none; padding: 0.5rem 1rem;">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Order #${order.id || order._id?.substring(0, 8)}</div>
+                        <div class="order-status ${order.status === 'delivered' ? 'status-delivered' : order.status === 'pending' ? 'status-pending' : 'status-cancelled'}">
+                            ${order.status || 'Processing'}
+                        </div>
+                    </div>
+                    <div class="order-items">${order.items?.length || 0} items</div>
+                    <div class="order-total">₦${order.total?.toLocaleString() || '0'}</div>
+                    <div class="order-date">${new Date(order.createdAt || Date.now()).toLocaleDateString()}</div>
+                    <div class="order-actions">
+                        <button class="order-btn" onclick="viewOrderDetails('${order.id || order._id}')">View Details</button>
+                        <button class="order-btn" onclick="trackOrder('${order.id || order._id}')">Track</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('stat-orders').textContent = orders.length;
+        }
+
+        function loadWishlist() {
+            const wishlist = JSON.parse(localStorage.getItem('e4a_wishlist')) || [];
+            const container = document.getElementById('wishlist-container');
+
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">❤️</div>
+                        <p>Your wishlist is empty</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = wishlist.map(item => `
+                <div class="wishlist-item">
+                    <img src="${item.image || 'https://via.placeholder.com/180x150'}" alt="${item.name}">
+                    <div class="wishlist-name">${item.name}</div>
+                    <div class="wishlist-price">₦${item.price?.toLocaleString() || '0'}</div>
+                    <button class="wishlist-remove" onclick="removeFromWishlist('${item.id}')">Remove</button>
+                </div>
+            `).join('');
+
+            document.getElementById('stat-wishlist').textContent = wishlist.length;
+        }
+
+        function loadRecentlyViewed() {
+            const recently = JSON.parse(localStorage.getItem('e4a_recently')) || [];
+            const container = document.getElementById('recently-container');
+
+            if (recently.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👁️</div>
+                        <p>No recently viewed items</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recently.map(item => `
+                <div class="order-card">
+                    <div class="order-id">${item.name}</div>
+                    <div class="order-items">Price: ₦${item.price?.toLocaleString() || '0'}</div>
+                    <div class="order-date">Viewed: ${new Date(item.viewedAt || Date.now()).toLocaleDateString()}</div>
+                    <button class="order-btn" onclick="window.location='product.html?id=${item.id}'">View Product</button>
+                </div>
+            `).join('');
+        }
+
+        function loadVouchers() {
+            const vouchers = [
+                { code: 'WELCOME10', discount: '10%', desc: 'Welcome bonus', expiry: '2026-02-14' },
+                { code: 'SAVE20', discount: '20%', desc: 'Save on purchases', expiry: '2026-03-14' },
+                { code: 'LUCKY50', discount: '50%', desc: 'Lucky draw prize', expiry: '2026-04-14' }
+            ];
+
+            const container = document.getElementById('vouchers-container');
+            container.innerHTML = vouchers.map(v => `
+                <div class="voucher-item">
+                    <div class="voucher-header">
+                        <div>
+                            <div class="voucher-code">${v.code}</div>
+                            <div class="voucher-desc">${v.desc}</div>
+                        </div>
+                        <div class="voucher-discount">${v.discount}</div>
+                    </div>
+                    <div class="voucher-expiry">Expires: ${v.expiry}</div>
+                    <button class="order-btn" style="margin-top: 0.5rem;" onclick="copyVoucher('${v.code}')">Copy Code</button>
+                </div>
+            `).join('');
+        }
+
+        function saveProfile() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            user.name = document.getElementById('edit-name').value;
+            user.phone = document.getElementById('edit-phone').value;
+
+            localStorage.setItem('e4a_user', JSON.stringify(user));
+
+            document.getElementById('save-msg').style.display = 'block';
+            document.getElementById('user-name').textContent = user.name;
+            setTimeout(() => {
+                document.getElementById('save-msg').style.display = 'none';
+            }, 3000);
+        }
+
+        function showAddressForm() {
+            document.getElementById('address-form').style.display = 'block';
+        }
+
+        function hideAddressForm() {
+            document.getElementById('address-form').style.display = 'none';
+        }
+
+        function saveAddress() {
+            const addresses = JSON.parse(localStorage.getItem('e4a_addresses')) || [];
+            addresses.push({
+                name: document.getElementById('addr-name').value,
+                phone: document.getElementById('addr-phone').value,
+                street: document.getElementById('addr-street').value,
+                city: document.getElementById('addr-city').value,
+                state: document.getElementById('addr-state').value,
+                postal: document.getElementById('addr-postal').value,
+                country: document.getElementById('addr-country').value
+            });
+
+            localStorage.setItem('e4a_addresses', JSON.stringify(addresses));
+            hideAddressForm();
+            loadAddresses();
+        }
+
+        function loadAddresses() {
+            const addresses = JSON.parse(localStorage.getItem('e4a_addresses')) || [];
+            const container = document.getElementById('addresses-container');
+
+            if (addresses.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-size: 0.9rem;">No saved addresses</p>';
+                return;
+            }
+
+            container.innerHTML = addresses.map((addr, idx) => `
+                <div class="address-card">
+                    <div class="address-title">${addr.name}</div>
+                    <div class="address-text">${addr.street}</div>
+                    <div class="address-text">${addr.city}, ${addr.state} ${addr.postal}</div>
+                    <div class="address-text">${addr.country}</div>
+                    <div class="address-text">📱 ${addr.phone}</div>
+                    <div class="address-actions">
+                        <button class="address-btn" onclick="editAddress(${idx})">Edit</button>
+                        <button class="address-btn" onclick="deleteAddress(${idx})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteAddress(idx) {
+            if (confirm('Delete this address?')) {
+                const addresses = JSON.parse(localStorage.getItem('e4a_addresses')) || [];
+                addresses.splice(idx, 1);
+                localStorage.setItem('e4a_addresses', JSON.stringify(addresses));
+                loadAddresses();
+            }
+        }
+
+        function removeFromWishlist(itemId) {
+            let wishlist = JSON.parse(localStorage.getItem('e4a_wishlist')) || [];
+            wishlist = wishlist.filter(w => w.id != itemId);
+            localStorage.setItem('e4a_wishlist', JSON.stringify(wishlist));
+            loadWishlist();
+        }
+
+        function copyVoucher(code) {
+            navigator.clipboard.writeText(code);
+            alert('✅ Voucher code copied!');
+        }
+
+        function viewOrderDetails(orderId) {
+            alert('Order details for: ' + orderId);
+        }
+
+        function trackOrder(orderId) {
+            alert('Tracking order: ' + orderId);
+        }
+
+        function editAvatar() {
+            alert('Avatar editing coming soon!');
+        }
+
+        function addCard() {
+            alert('Card management coming soon!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('e4a_token');
+                localStorage.removeItem('e4a_user');
+                alert('👋 You have been logged out!');
+                window.location = 'index.html';
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadUserProfile();
+            loadOrders();
+            loadWishlist();
+            loadRecentlyViewed();
+            loadVouchers();
+            loadAddresses();
+        });
+    </script>
+</body>
+</html>

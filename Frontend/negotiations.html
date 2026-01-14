@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Negotiations - E4A</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .negotiation-page {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .negotiation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .negotiation-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f9f9f9;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .negotiation-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-color: #d4af37;
+    }
+    .negotiation-card h3 {
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+    .negotiation-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 14px;
+      color: #666;
+      margin: 10px 0;
+    }
+    .negotiation-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .negotiation-status.active {
+      background: #d4af37;
+      color: #333;
+    }
+    .negotiation-status.accepted {
+      background: #4caf50;
+      color: white;
+    }
+    .negotiation-status.rejected {
+      background: #f44336;
+      color: white;
+    }
+    .negotiation-detail {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    .negotiation-detail.active {
+      display: block;
+    }
+    .message-thread {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: white;
+      height: 300px;
+      overflow-y: auto;
+      margin: 20px 0;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+      background: #f0f0f0;
+    }
+    .message.buyer {
+      background: #e3f2fd;
+      text-align: left;
+    }
+    .message.seller {
+      background: #fff3e0;
+      text-align: right;
+    }
+    .message-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .offer-input {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .offer-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .offer-input button {
+      padding: 10px 20px;
+      background: #d4af37;
+      color: #333;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .offer-input button:hover {
+      background: #c9a227;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="brand"><a href="index.html">E4A</a></div>
+      <div class="nav-right">
+        <a href="shop.html">Shop</a>
+        <a href="negotiations.html" class="active">Negotiations</a>
+        <a href="verifications.html">Verify</a>
+        <a href="seller-api.html">API</a>
+        <a href="cart.html" class="cart-link">Cart (<span id="cart-count">0</span>)</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="negotiation-page">
+      <h1>Price Negotiations</h1>
+      <p>Negotiate prices directly with sellers and buyers on your listings.</p>
+
+      <div id="negotiations-container" class="negotiation-list"></div>
+      <p id="no-negotiations" style="text-align: center; color: #999;">No active negotiations. Browse products and make an offer!</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2025 E4A — Price Negotiation Platform</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Negotiation Page Handler
+    const API_BASE = '/api';
+    let currentUser = null;
+
+    async function loadNegotiations() {
+      try {
+        const user = JSON.parse(localStorage.getItem('e4a_user'));
+        const token = localStorage.getItem('e4a_token');
+        if (!user || !token) {
+          document.getElementById('negotiations-container').innerHTML = '<p style="text-align:center;color:#f44336;">Please sign in to view negotiations.</p>';
+          return;
+        }
+        currentUser = user;
+
+        const res = await fetch(`${API_BASE}/negotiations/user/${user._id || user.id}`);
+        const negotiations = await res.json();
+
+        if (!negotiations || negotiations.length === 0) {
+          document.getElementById('no-negotiations').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('no-negotiations').style.display = 'none';
+        const container = document.getElementById('negotiations-container');
+        container.innerHTML = '';
+
+        negotiations.forEach(neg => {
+          const card = document.createElement('div');
+          card.className = 'negotiation-card';
+          const productName = neg.productId?.name || 'Unknown Product';
+          const buyerName = neg.buyerId?.name || 'Buyer';
+          const sellerName = neg.sellerId?.name || 'Seller';
+
+          card.innerHTML = `
+            <h3>${productName}</h3>
+            <div class="negotiation-meta">
+              <span>Original Price: $${neg.initialPrice}</span>
+              <span>Current Offer: $${neg.currentOfferPrice}</span>
+              <span>Buyer: ${buyerName}</span>
+              <span>Seller: ${sellerName}</span>
+            </div>
+            <span class="negotiation-status ${neg.status}">${neg.status.toUpperCase()}</span>
+          `;
+
+          card.onclick = () => showNegotiationDetail(neg);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error('Error loading negotiations:', err);
+      }
+    }
+
+    async function showNegotiationDetail(negotiation) {
+      const container = document.getElementById('negotiations-container');
+      const card = container.querySelector('.negotiation-card');
+
+      let detailDiv = card.querySelector('.negotiation-detail');
+      if (!detailDiv) {
+        detailDiv = document.createElement('div');
+        detailDiv.className = 'negotiation-detail';
+        card.appendChild(detailDiv);
+      }
+
+      detailDiv.classList.toggle('active');
+
+      if (!detailDiv.classList.contains('active')) return;
+
+      // Load full negotiation data
+      const res = await fetch(`${API_BASE}/negotiations/${negotiation._id}`);
+      const full = await res.json();
+
+      const isSeller = full.sellerId._id === (currentUser._id || currentUser.id);
+      const isBuyer = full.buyerId._id === (currentUser._id || currentUser.id);
+
+      let html = `
+        <div style="margin: 15px 0;">
+          <h4>Conversation</h4>
+          <div class="message-thread">
+      `;
+
+      (full.messages || []).forEach(msg => {
+        const senderName = msg.senderType === 'buyer' ? 'Buyer' : 'Seller';
+        html += `
+          <div class="message ${msg.senderType}">
+            <div class="message-meta">${senderName} - ${new Date(msg.timestamp).toLocaleDateString()}</div>
+            <p>${msg.content}</p>
+            ${msg.offerPrice ? `<strong>Offer: $${msg.offerPrice}</strong>` : ''}
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+
+      // Action buttons based on role
+      if (isSeller && full.status === 'active') {
+        html += `
+          <div class="offer-input">
+            <input type="number" id="counter-price" placeholder="Counter offer price" value="${full.currentOfferPrice}" min="0" step="0.01" />
+            <button onclick="sendCounterOffer('${full._id}')">Counter Offer</button>
+            <button onclick="acceptOffer('${full._id}')" style="background:#4caf50;">Accept</button>
+            <button onclick="rejectOffer('${full._id}')" style="background:#f44336;color:white;">Reject</button>
+          </div>
+        `;
+      } else if (isBuyer && full.status === 'active') {
+        html += `
+          <div class="offer-input">
+            <input type="number" id="counter-price" placeholder="New offer price" value="${full.currentOfferPrice}" min="0" step="0.01" />
+            <button onclick="sendCounterOffer('${full._id}')">Counter Offer</button>
+          </div>
+        `;
+      }
+
+      detailDiv.innerHTML = html;
+    }
+
+    async function sendCounterOffer(negotiationId) {
+      const newPrice = document.getElementById('counter-price').value;
+      if (!newPrice) return alert('Enter a price');
+
+      try {
+        const res = await fetch(`${API_BASE}/negotiations/${negotiationId}/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderId: currentUser._id || currentUser.id,
+            senderType: currentUser.isSeller ? 'seller' : 'buyer',
+            content: `Counter offer at $${newPrice}`,
+            offerPrice: Number(newPrice)
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Counter offer sent!');
+          loadNegotiations();
+        }
+      } catch (err) {
+        console.error('Error sending counter offer:', err);
+      }
+    }
+
+    async function acceptOffer(negotiationId) {
+      try {
+        const res = await fetch(`${API_BASE}/negotiations/${negotiationId}/accept`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sellerId: currentUser._id || currentUser.id })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Offer accepted! Proceed to checkout with the agreed price.');
+          loadNegotiations();
+        }
+      } catch (err) {
+        console.error('Error accepting offer:', err);
+      }
+    }
+
+    async function rejectOffer(negotiationId) {
+      try {
+        const res = await fetch(`${API_BASE}/negotiations/${negotiationId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sellerId: currentUser._id || currentUser.id })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Offer rejected.');
+          loadNegotiations();
+        }
+      } catch (err) {
+        console.error('Error rejecting offer:', err);
+      }
+    }
+
+    // Load negotiations on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      updateCartCount();
+      loadNegotiations();
+    });
+  </script>
+</body>
+</html>

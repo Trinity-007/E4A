@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Seller API - E4A</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .api-page {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .api-section {
+      margin: 40px 0;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+    }
+    .api-section h2 {
+      margin-top: 0;
+      border-bottom: 2px solid #d4af37;
+      padding-bottom: 10px;
+    }
+    .api-key-item {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      background: #f9f9f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .api-key-item .key-info h4 {
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+    .api-key-item .key-info p {
+      margin: 3px 0;
+      font-size: 12px;
+      color: #666;
+    }
+    .api-key-item button {
+      padding: 8px 15px;
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .api-key-item button:hover {
+      background: #d32f2f;
+    }
+    .api-form {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .api-form label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+    .api-form input,
+    .api-form select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    .api-form button {
+      width: 100%;
+      padding: 12px;
+      background: #d4af37;
+      color: #333;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .api-form button:hover {
+      background: #c9a227;
+    }
+    .api-docs {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .api-endpoint {
+      border-left: 3px solid #d4af37;
+      padding: 15px;
+      margin: 15px 0;
+      background: white;
+      border-radius: 4px;
+    }
+    .api-endpoint .method {
+      font-weight: bold;
+      color: white;
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-right: 10px;
+      font-size: 12px;
+    }
+    .api-endpoint .method.get {
+      background: #2196f3;
+    }
+    .api-endpoint .method.post {
+      background: #4caf50;
+    }
+    .api-endpoint .method.put {
+      background: #ff9800;
+    }
+    .api-endpoint .method.delete {
+      background: #f44336;
+    }
+    .code-block {
+      background: #333;
+      color: #0f0;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-family: monospace;
+      font-size: 12px;
+      margin: 10px 0;
+    }
+    .test-section {
+      background: #e8f5e9;
+      border: 1px solid #4caf50;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .success-message {
+      background: #4caf50;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="brand"><a href="index.html">E4A</a></div>
+      <div class="nav-right">
+        <a href="shop.html">Shop</a>
+        <a href="negotiations.html">Negotiations</a>
+        <a href="verifications.html">Verify</a>
+        <a href="seller-api.html" class="active">API</a>
+        <a href="cart.html" class="cart-link">Cart (<span id="cart-count">0</span>)</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="api-page">
+      <h1>E4A Seller API</h1>
+      <p>Integrate your store directly with E4A. Sync products, manage orders, and automate your business.</p>
+
+      <!-- API Keys Section -->
+      <div class="api-section">
+        <h2>API Keys</h2>
+        <p>Create API keys to authenticate your integrations.</p>
+
+        <div id="api-keys-list"></div>
+
+        <div class="api-form">
+          <h3>Generate New API Key</h3>
+          <label for="key-name">Key Name (e.g., "Production API")</label>
+          <input type="text" id="key-name" placeholder="e.g., My Store Integration" required />
+
+          <label for="key-permissions">Permissions</label>
+          <select id="key-permissions" multiple>
+            <option value="read:products" selected>Read Products</option>
+            <option value="read:orders" selected>Read Orders</option>
+            <option value="write:products">Write Products</option>
+            <option value="webhook:events">Webhook Events</option>
+          </select>
+
+          <button type="button" onclick="generateAPIKey()">Generate Key</button>
+        </div>
+
+        <div id="new-key-display" class="success-message">
+          <h4>Your API Key (save securely)</h4>
+          <div class="code-block" id="new-key-value"></div>
+          <p style="font-size:12px;">This key will only be shown once. Store it securely!</p>
+        </div>
+      </div>
+
+      <!-- API Documentation Section -->
+      <div class="api-section">
+        <h2>API Documentation</h2>
+        <p>Base URL: <code>https://e4a.com/api/seller</code></p>
+        <p>Authentication: Include your API key in the <code>x-api-key</code> header</p>
+
+        <div class="code-block">
+curl -H "x-api-key: YOUR_API_KEY_HERE" https://e4a.com/api/seller/products
+        </div>
+
+        <h3>Endpoints</h3>
+
+        <div class="api-endpoint">
+          <span class="method get">GET</span>
+          <strong>/products</strong>
+          <p>Get all your products</p>
+          <div class="code-block">curl -H "x-api-key: YOUR_KEY" https://e4a.com/api/seller/products</div>
+          <p>Response: List of products with name, price, category, description</p>
+        </div>
+
+        <div class="api-endpoint">
+          <span class="method get">GET</span>
+          <strong>/orders</strong>
+          <p>Get orders for your products</p>
+          <div class="code-block">curl -H "x-api-key: YOUR_KEY" https://e4a.com/api/seller/orders</div>
+          <p>Response: List of orders containing your products</p>
+        </div>
+
+        <div class="api-endpoint">
+          <span class="method put">PUT</span>
+          <strong>/products/:productId</strong>
+          <p>Update a product listing</p>
+          <div class="code-block">curl -X PUT -H "x-api-key: YOUR_KEY" -H "Content-Type: application/json" \
+  -d '{"name":"New Name", "price": 99}' \
+  https://e4a.com/api/seller/products/PRODUCT_ID</div>
+          <p>Body: { name, price, description, image }</p>
+        </div>
+
+        <div class="api-endpoint">
+          <span class="method post">POST</span>
+          <strong>/keys</strong>
+          <p>Generate a new API key (admin only)</p>
+          <div class="code-block">curl -X POST -H "Content-Type: application/json" \
+  -d '{"sellerId":"YOUR_ID", "keyName":"My Key"}' \
+  https://e4a.com/api/seller/keys</div>
+        </div>
+      </div>
+
+      <!-- Integration Examples Section -->
+      <div class="api-section">
+        <h2>Integration Examples</h2>
+
+        <h3>JavaScript/Node.js</h3>
+        <div class="code-block">
+const apiKey = 'your-api-key-here';
+
+// Get all products
+fetch('https://e4a.com/api/seller/products', {
+  headers: { 'x-api-key': apiKey }
+})
+  .then(res => res.json())
+  .then(data => console.log('Products:', data.products));
+        </div>
+
+        <h3>Python</h3>
+        <div class="code-block">
+import requests
+
+headers = {'x-api-key': 'your-api-key-here'}
+response = requests.get('https://e4a.com/api/seller/products', headers=headers)
+products = response.json()
+print(products)
+        </div>
+
+        <h3>PHP</h3>
+        <div class="code-block">
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://e4a.com/api/seller/products');
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['x-api-key: your-api-key-here']);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+$products = json_decode($response, true);
+echo json_encode($products);
+        </div>
+      </div>
+
+      <!-- Test API Section -->
+      <div class="test-section">
+        <h2>Test API Connection</h2>
+        <p>Test your API key connection</p>
+        <input type="text" id="test-api-key" placeholder="Paste your API key here" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ddd;border-radius:4px;" />
+        <button onclick="testAPIConnection()" style="padding:10px 20px;background:#4caf50;color:white;border:none;border-radius:4px;cursor:pointer;">Test Connection</button>
+        <div id="test-result"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2025 E4A — Seller API Integration Platform</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    const API_BASE = '/api';
+    let currentUser = null;
+
+    async function loadAPIKeys() {
+      try {
+        const user = JSON.parse(localStorage.getItem('e4a_user'));
+        if (!user) {
+          document.getElementById('api-keys-list').innerHTML = '<p style="text-align:center;color:#f44336;">Please sign in to manage API keys.</p>';
+          return;
+        }
+        currentUser = user;
+
+        const res = await fetch(`${API_BASE}/seller/keys/${user._id || user.id}`);
+        const keys = await res.json();
+
+        const container = document.getElementById('api-keys-list');
+        if (!keys || keys.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#999;">No API keys yet. Create one below.</p>';
+          return;
+        }
+
+        container.innerHTML = '<h3>Your API Keys</h3>';
+        keys.forEach(key => {
+          container.innerHTML += `
+            <div class="api-key-item">
+              <div class="key-info">
+                <h4>${key.keyName}</h4>
+                <p>Permissions: ${(key.permissions || []).join(', ')}</p>
+                <p>Created: ${new Date(key.createdAt).toLocaleDateString()}</p>
+                <p>Status: ${key.isActive ? '<span style="color:#4caf50;font-weight:bold;">Active</span>' : '<span style="color:#f44336;font-weight:bold;">Inactive</span>'}</p>
+              </div>
+              <button onclick="revokeKey('${key._id}')">Revoke</button>
+            </div>
+          `;
+        });
+      } catch (err) {
+        console.error('Error loading API keys:', err);
+      }
+    }
+
+    async function generateAPIKey() {
+      const keyName = document.getElementById('key-name').value;
+      if (!keyName) {
+        alert('Enter a key name');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/seller/keys`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sellerId: currentUser._id || currentUser.id,
+            keyName
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('new-key-value').textContent = data.apiKey;
+          document.getElementById('new-key-display').style.display = 'block';
+          document.getElementById('key-name').value = '';
+          loadAPIKeys();
+        }
+      } catch (err) {
+        alert('Error generating key: ' + err.message);
+      }
+    }
+
+    async function revokeKey(keyId) {
+      if (!confirm('Are you sure? This key will no longer work.')) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/seller/keys/${keyId}`, {
+          method: 'DELETE'
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('API key revoked');
+          loadAPIKeys();
+        }
+      } catch (err) {
+        alert('Error revoking key: ' + err.message);
+      }
+    }
+
+    async function testAPIConnection() {
+      const apiKey = document.getElementById('test-api-key').value;
+      if (!apiKey) {
+        alert('Paste your API key first');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/seller/products`, {
+          headers: { 'x-api-key': apiKey }
+        });
+
+        const data = await res.json();
+        const resultDiv = document.getElementById('test-result');
+
+        if (res.ok && data.success) {
+          resultDiv.innerHTML = `
+            <div style="background:#e8f5e9;border:1px solid #4caf50;border-radius:8px;padding:15px;margin:15px 0;color:#2e7d32;">
+              <h4>✓ Connection Successful!</h4>
+              <p>Products found: ${data.count}</p>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div style="background:#ffebee;border:1px solid #f44336;border-radius:8px;padding:15px;margin:15px 0;color:#c62828;">
+              <h4>✗ Connection Failed</h4>
+              <p>${data.error || 'Invalid API key'}</p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        document.getElementById('test-result').innerHTML = `
+          <div style="background:#ffebee;border:1px solid #f44336;border-radius:8px;padding:15px;margin:15px 0;color:#c62828;">
+            <h4>✗ Error</h4>
+            <p>${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateCartCount();
+      loadAPIKeys();
+    });
+  </script>
+</body>
+</html>
