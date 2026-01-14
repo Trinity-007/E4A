@@ -2,15 +2,13 @@ services:
   - type: web
     name: e4a-backend
     runtime: node
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
-    autoDeploy: true
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: MONGODB_URI
-        scope: build
         value: mongodb+srv://user:password@cluster.mongodb.net/e4a_db
       - key: JWT_SECRET
-        scope: build
         value: your_strong_secret_key_min_32_chars
       - key: NODE_ENV
         value: production
