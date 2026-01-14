@@ -1,0 +1,12 @@
+[build]
+  command = "echo 'E4A Marketplace deployed!'"
+  publish = "Frontend"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  command = "echo 'E4A Production Build'"
+  publish = "Frontend"
