@@ -1,12 +1,24 @@
 // E4A frontend script - integrated with backend API
-// ⚠️  IMPORTANT: Update this URL to your backend server (not localhost - won't work on Netlify)
-// 
-// Options:
-// 1. Deploy backend to Railway/Render (recommended): 'https://your-backend-url.com/api'
-// 2. Use ngrok tunnel: 'https://your-ngrok-url.ngrok.io/api'
-// 3. Local dev only: 'http://localhost:3000/api'
-//
-const API_BASE = 'http://localhost:3000/api'; // ← UPDATE THIS FOR NETLIFY
+// Backend URL - automatically detects local vs production
+
+// Detect if we're on Netlify/production vs local
+const API_BASE = (() => {
+  const hostname = window.location.hostname;
+  
+  // If on localhost, use local backend
+  if (hostname.includes('localhost') || hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  }
+  
+  // If on Render backend domain, use relative path
+  if (hostname.includes('render.com')) {
+    return '/api';
+  }
+  
+  // Default: use environment variable or localhost
+  return window.__API_BASE__ || 'http://localhost:3000/api';
+})();
+
 let PRODUCTS = [];
 
 // Fallback products (used if backend unavailable)

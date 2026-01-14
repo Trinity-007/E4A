@@ -1,23 +1,27 @@
-// E4A Configuration File
+// E4A Frontend Configuration
 // Update API_BASE_URL based on your deployment
 
+// Production (Render)
+// const API_BASE_URL = 'https://your-render-backend-url/api';
+
+// Staging (localhost)
 const API_BASE_URL = 'http://localhost:3000/api';
 
-// For Netlify deployment, you have several options:
-// 
-// Option 1: Deploy your backend to Railway.app or Render.com
-//   Then update this to: 'https://your-backend-domain.com/api'
-//
-// Option 2: Use ngrok to tunnel your local backend
-//   Install: npm install -g ngrok
-//   Run: ngrok http 3000
-//   Then update this to: 'https://your-ngrok-url/api'
-//
-// Option 3: Keep local and test with: npm run dev
-//   This serves both frontend and backend from localhost:3000
-//
-// IMPORTANT: After updating this file, deploy to Netlify again
+// Detect environment and set URL automatically
+const getAPIBase = () => {
+  // If on Netlify (Render/production domain)
+  if (window.location.hostname.includes('netlify')) {
+    // You'll set this as an environment variable in Netlify
+    return window.API_BASE || 'http://localhost:3000/api';
+  }
+  // If on Render (backend domain)
+  if (window.location.hostname.includes('render')) {
+    return 'https://' + window.location.hostname + '/api';
+  }
+  // Default to localhost for local development
+  return 'http://localhost:3000/api';
+};
 
 export const config = {
-  apiBase: API_BASE_URL
+  apiBase: getAPIBase()
 };
