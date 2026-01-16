@@ -436,12 +436,15 @@ function handleSignin() {
     }
 
     try {
+      console.log('🔐 Signing in...', { email, API_BASE });
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
+      console.log('📡 Response status:', res.status);
       const data = await res.json();
+      console.log('📦 Response data:', data);
       if (res.ok && (data.success || data.token)) {
         localStorage.setItem('e4a_token', data.token || '');
         localStorage.setItem('e4a_user', JSON.stringify(data.user || { email }));
@@ -451,8 +454,9 @@ function handleSignin() {
         if (errorEl) { errorEl.textContent = data.error || 'Invalid credentials'; errorEl.style.display = 'block'; }
       }
     } catch (err) {
-      console.error('Signin error:', err);
-      if (errorEl) { errorEl.textContent = 'Network error. Try again.'; errorEl.style.display = 'block'; }
+      console.error('❌ Signin error:', err.message);
+      console.error('Full error:', err);
+      if (errorEl) { errorEl.textContent = 'Network error. Try again. Check console (F12) for details.'; errorEl.style.display = 'block'; }
     }
   });
 }
