@@ -3,430 +3,890 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E4A Admin Panel</title>
+  <title>Admin Panel - E4A Marketplace</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-    .navbar { background: #06112b; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-    .navbar h1 { font-size: 24px; }
-    .logout-btn { background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-    .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 16px; border-bottom: 3px solid transparent; }
-    .tab-btn.active { border-bottom-color: #06112b; color: #06112b; font-weight: bold; }
-    .tab-content { display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .tab-content.active { display: block; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
-    input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
-    textarea { min-height: 100px; resize: vertical; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .btn { padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; }
-    .btn-primary { background: #06112b; color: white; }
-    .btn-primary:hover { background: #0a1a3f; }
-    .btn-success { background: #28a745; color: white; }
-    .btn-danger { background: #dc3545; color: white; }
-    .btn-danger:hover { background: #c82333; }
-    .upload-area { border: 2px dashed #ddd; padding: 40px; text-align: center; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
-    .upload-area:hover { border-color: #06112b; background: #f9f9f9; }
-    .upload-area.dragover { border-color: #06112b; background: #e8f4f8; }
-    .preview-img { max-width: 200px; max-height: 200px; margin-top: 20px; border-radius: 5px; }
-    .alert { padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    .products-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .products-table th, .products-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    .products-table th { background: #f8f9fa; font-weight: bold; }
-    .products-table tr:hover { background: #f9f9f9; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
-    .stat-card h3 { color: #666; font-size: 14px; margin-bottom: 10px; }
-    .stat-card .number { font-size: 32px; font-weight: bold; color: #06112b; }
-    .auth-container { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .auth-container h2 { margin-bottom: 30px; color: #06112b; }
-    .hidden { display: none; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: #f5f5f5; 
+      color: #333;
+    }
+    
+    .admin-container { 
+      display: flex; 
+      height: 100vh; 
+      overflow: hidden;
+    }
+    
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    
+    .sidebar-header {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .sidebar-menu a {
+      display: block;
+      color: white;
+      padding: 12px 15px;
+      margin: 5px 0;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .sidebar-menu a:hover,
+    .sidebar-menu a.active {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .logout-section {
+      margin-top: 40px; 
+      padding-top: 20px; 
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .logout-section a {
+      color: #ff6b6b !important;
+      display: block;
+      padding: 12px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    
+    .logout-section a:hover {
+      background: rgba(255, 107, 107, 0.2);
+    }
+    
+    .main-content {
+      flex: 1;
+      margin-left: 250px;
+      overflow-y: auto;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .top-bar {
+      background: white;
+      padding: 20px 30px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      flex-shrink: 0;
+    }
+    
+    .top-bar h2 {
+      color: #333;
+      margin: 0;
+    }
+    
+    .admin-info {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .logout-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+    
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+    
+    .content {
+      padding: 30px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    
+    .stat-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .table-wrapper {
+      overflow-x: auto;
+      margin-bottom: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    
+    th {
+      background: #667eea;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      word-break: break-word;
+      font-size: 14px;
+    }
+    
+    tbody tr:hover {
+      background: #f5f5f5;
+    }
+    
+    .section {
+      display: none;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    .section-title {
+      font-size: 24px;
+      margin-bottom: 25px;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    
+    .login-form {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .login-form h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-size: 28px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    
+    .btn-login:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-login:active {
+      transform: translateY(0);
+    }
+    
+    .error { 
+      color: #e74c3c; 
+      font-size: 14px;
+      padding: 10px;
+      background: #ffebee;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    
+    .success { 
+      color: #27ae60; 
+      padding: 10px;
+      background: #eafaf1;
+      border-radius: 5px;
+    }
+    
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 5px;
+      transition: opacity 0.2s;
+    }
+    
+    .btn:hover {
+      opacity: 0.8;
+    }
+    
+    .btn-approve { 
+      background: #27ae60; 
+      color: white; 
+    }
+    
+    .btn-reject { 
+      background: #e74c3c; 
+      color: white; 
+    }
+    
+    .btn-delete { 
+      background: #e74c3c; 
+      color: white; 
+    }
+    
+    .btn-edit { 
+      background: #f39c12; 
+      color: white; 
+    }
+    
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    .pagination button {
+      padding: 8px 12px;
+      margin: 0 5px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .pagination button:hover {
+      background: #764ba2;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 200px;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .sidebar {
+        width: 160px;
+        padding: 15px;
+      }
+      
+      .sidebar-header {
+        font-size: 16px;
+      }
+      
+      .sidebar-menu a {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+      
+      .main-content {
+        margin-left: 160px;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      table {
+        font-size: 12px;
+      }
+      
+      td, th {
+        padding: 10px;
+      }
+      
+      .content {
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 <body>
 
-<div class="navbar">
-  <h1>E4A Admin Panel</h1>
-  <button class="logout-btn" onclick="logout()">Logout</button>
-</div>
-
-<div id="auth-section" class="auth-container">
-  <h2>Admin Login</h2>
-  <div class="form-group">
-    <label>Admin Password</label>
-    <input type="password" id="admin-password" placeholder="Enter admin password">
+<!-- Login Page -->
+<div id="login-page" class="login-container">
+  <div class="login-form">
+    <h1>🔐 Admin Login</h1>
+    <form id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="admin-email" placeholder="admin@e4a.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="admin-password" placeholder="Enter password" required>
+      </div>
+      <div id="login-error" class="error" style="display:none;"></div>
+      <button type="submit" class="btn-login">Login</button>
+    </form>
   </div>
-  <button class="btn btn-primary" style="width: 100%; cursor: pointer;" onclick="loginAdmin()">Login</button>
-  <p style="margin-top: 20px; color: #666; font-size: 12px;">Default password: admin123</p>
 </div>
 
-<div id="main-content" class="hidden">
-  <div class="container">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-      <button class="tab-btn" onclick="switchTab('upload')">Upload Images</button>
-      <button class="tab-btn" onclick="switchTab('products')">Manage Products</button>
-      <button class="tab-btn" onclick="switchTab('orders')">Orders</button>
-    </div>
-
-    <!-- Dashboard Tab -->
-    <div id="dashboard" class="tab-content active">
-      <h2>Dashboard</h2>
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-card">
-          <h3>Total Products</h3>
-          <div class="number" id="stat-products">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>Total Orders</h3>
-          <div class="number" id="stat-orders">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>Total Users</h3>
-          <div class="number" id="stat-users">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>Revenue</h3>
-          <div class="number" id="stat-revenue">$0</div>
-        </div>
+<!-- Admin Dashboard -->
+<div id="admin-page" style="display:none;">
+  <div class="admin-container">
+    <div class="sidebar">
+      <div class="sidebar-header">📊 E4A Admin</div>
+      <div class="sidebar-menu">
+        <a href="#" onclick="showSection('dashboard')" class="menu-item active" data-section="dashboard">📈 Dashboard</a>
+        <a href="#" onclick="showSection('users')" class="menu-item" data-section="users">👥 Users</a>
+        <a href="#" onclick="showSection('orders')" class="menu-item" data-section="orders">📦 Orders</a>
+        <a href="#" onclick="showSection('products')" class="menu-item" data-section="products">🏪 Products</a>
+        <a href="#" onclick="showSection('verifications')" class="menu-item" data-section="verifications">✅ Verifications</a>
+      </div>
+      <div class="logout-section">
+        <a href="#" onclick="logout()">🚪 Logout</a>
       </div>
     </div>
 
-    <!-- Upload Images Tab -->
-    <div id="upload" class="tab-content">
-      <h2>Upload Product Images</h2>
-      <div id="upload-message" class="alert hidden"></div>
-      
-      <div class="form-group">
-        <label>Product ID (optional, auto-assign if blank)</label>
-        <input type="number" id="product-id" placeholder="e.g., 81">
-      </div>
-      
-      <div class="form-group">
-        <label>Product Name</label>
-        <input type="text" id="product-name" placeholder="e.g., Premium Headphones">
-      </div>
-
-      <div class="form-group">
-        <label>Category</label>
-        <select id="product-category">
-          <option>Select Category</option>
-          <option>Phones</option>
-          <option>Fashion</option>
-          <option>Computers</option>
-          <option>Electronics</option>
-          <option>Accessories</option>
-          <option>Home</option>
-          <option>Kitchen</option>
-          <option>Furniture</option>
-          <option>Tools</option>
-          <option>Vehicles</option>
-          <option>Appliances</option>
-          <option>Auto Accessories</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Price ($)</label>
-        <input type="number" id="product-price" placeholder="e.g., 99.99" min="0" step="0.01">
-      </div>
-
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="product-description" placeholder="Product description..."></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Image File</label>
-        <div class="upload-area" id="upload-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-          <p>Drag and drop image here or click to browse</p>
-          <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+    <div class="main-content">
+      <div class="top-bar">
+        <h2>E4A Admin Panel</h2>
+        <div class="admin-info">
+          <span id="admin-name" style="font-weight: 500;">Admin</span>
+          <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
-        <img id="preview-img" class="preview-img" style="display: none;">
       </div>
 
-      <button class="btn btn-primary" style="width: 100%;" onclick="uploadProduct()">Upload Product</button>
-    </div>
+      <div class="content">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+          <h3 class="section-title">📈 Dashboard</h3>
+          <div class="dashboard-grid" id="dashboard-stats"></div>
+          
+          <h3 class="section-title">Recent Orders</h3>
+          <div class="table-wrapper">
+            <table id="recent-orders-table"></table>
+          </div>
+          
+          <h3 class="section-title">Recent Users</h3>
+          <div class="table-wrapper">
+            <table id="recent-users-table"></table>
+          </div>
+        </div>
 
-    <!-- Manage Products Tab -->
-    <div id="products" class="tab-content">
-      <h2>Products</h2>
-      <button class="btn btn-primary" style="margin-bottom: 20px;" onclick="loadProducts()">Refresh List</button>
-      <table class="products-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="products-tbody">
-          <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
+        <!-- Users Section -->
+        <div id="users" class="section">
+          <h3 class="section-title">👥 Users Management</h3>
+          <div class="table-wrapper">
+            <table id="users-table"></table>
+          </div>
+          <div class="pagination" id="users-pagination"></div>
+        </div>
 
-    <!-- Orders Tab -->
-    <div id="orders" class="tab-content">
-      <h2>Orders</h2>
-      <button class="btn btn-primary" style="margin-bottom: 20px;" onclick="loadOrders()">Refresh Orders</button>
-      <table class="products-table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody id="orders-tbody">
-          <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
-        </tbody>
-      </table>
+        <!-- Orders Section -->
+        <div id="orders" class="section">
+          <h3 class="section-title">📦 Orders Management</h3>
+          <div class="table-wrapper">
+            <table id="orders-table"></table>
+          </div>
+          <div class="pagination" id="orders-pagination"></div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products" class="section">
+          <h3 class="section-title">🏪 Products Management</h3>
+          <div class="table-wrapper">
+            <table id="products-table"></table>
+          </div>
+          <div class="pagination" id="products-pagination"></div>
+        </div>
+
+        <!-- Verifications Section -->
+        <div id="verifications" class="section">
+          <h3 class="section-title">✅ Pending Verifications</h3>
+          <div class="table-wrapper">
+            <table id="verifications-table"></table>
+          </div>
+          <div class="pagination" id="verifications-pagination"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  const API_BASE = 'http://localhost:3000/api';
-  let selectedFile = null;
+const API_BASE = (() => {
+  const hostname = window.location.hostname;
+  if (hostname.includes('localhost') || hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  }
+  if (hostname.includes('render.com')) {
+    return '/api';
+  }
+  return window.__API_BASE__ || 'http://localhost:3000/api';
+})();
 
-  // Auth
-  function loginAdmin() {
-    const password = document.getElementById('admin-password').value;
-    if (password === 'admin123') {
-      localStorage.setItem('admin-logged-in', 'true');
-      document.getElementById('auth-section').classList.add('hidden');
-      document.getElementById('main-content').classList.remove('hidden');
+let adminToken = localStorage.getItem('admin_token');
+
+// Check if already logged in
+if (adminToken) {
+  showAdminDashboard();
+  loadDashboard();
+}
+
+// Login form handler
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
+  const errorEl = document.getElementById('login-error');
+  const btn = e.target.querySelector('button');
+  
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+
+  try {
+    const res = await fetch(`${API_BASE}/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    
+    if (res.ok && data.token) {
+      localStorage.setItem('admin_token', data.token);
+      localStorage.setItem('admin_info', JSON.stringify(data.admin));
+      adminToken = data.token;
+      errorEl.style.display = 'none';
+      showAdminDashboard();
       loadDashboard();
     } else {
-      alert('Invalid password');
+      errorEl.textContent = data.error || 'Login failed';
+      errorEl.style.display = 'block';
     }
+  } catch (err) {
+    console.error('Login error:', err);
+    errorEl.textContent = 'Network error. Try again.';
+    errorEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Login';
   }
+});
 
-  function logout() {
-    localStorage.removeItem('admin-logged-in');
-    document.getElementById('auth-section').classList.remove('hidden');
-    document.getElementById('main-content').classList.add('hidden');
-    document.getElementById('admin-password').value = '';
-  }
+function showAdminDashboard() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+  const adminInfo = JSON.parse(localStorage.getItem('admin_info') || '{}');
+  document.getElementById('admin-name').textContent = adminInfo.name || 'Admin';
+}
 
-  function checkAuth() {
-    if (localStorage.getItem('admin-logged-in') === 'true') {
-      document.getElementById('auth-section').classList.add('hidden');
-      document.getElementById('main-content').classList.remove('hidden');
-      loadDashboard();
-    }
-  }
+function showSection(section) {
+  // Prevent link navigation
+  event.preventDefault();
+  
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  
+  document.getElementById(section).classList.add('active');
+  document.querySelector(`[data-section="${section}"]`).classList.add('active');
+  
+  if (section === 'dashboard') loadDashboard();
+  if (section === 'users') loadUsers(1);
+  if (section === 'orders') loadOrders(1);
+  if (section === 'products') loadProducts(1);
+  if (section === 'verifications') loadVerifications(1);
+}
 
-  // Tabs
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+async function loadDashboard() {
+  try {
+    const res = await fetch(`${API_BASE}/admin/dashboard`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
     
-    if (tabName === 'products') loadProducts();
-    if (tabName === 'orders') loadOrders();
-  }
-
-  // Dashboard
-  async function loadDashboard() {
-    try {
-      const products = await fetch(`${API_BASE}/products`).then(r => r.json());
-      const orders = await fetch(`${API_BASE}/orders`).then(r => r.json());
-      
-      const productCount = Array.isArray(products) ? products.length : 0;
-      const orderCount = Array.isArray(orders) ? orders.length : 0;
-      const totalRevenue = Array.isArray(orders) ? orders.reduce((s, o) => s + (o.total || 0), 0) : 0;
-      
-      document.getElementById('stat-products').textContent = productCount;
-      document.getElementById('stat-orders').textContent = orderCount;
-      document.getElementById('stat-revenue').textContent = '$' + totalRevenue.toFixed(2);
-      document.getElementById('stat-users').textContent = '—';
-    } catch (e) {
-      console.error('Dashboard error:', e);
-    }
-  }
-
-  // Image Upload
-  const uploadArea = document.getElementById('upload-area');
-  uploadArea.addEventListener('click', () => document.getElementById('image-input').click());
-
-  function handleDragOver(e) {
-    e.preventDefault();
-    uploadArea.classList.add('dragover');
-  }
-
-  function handleDragLeave(e) {
-    uploadArea.classList.remove('dragover');
-  }
-
-  function handleDrop(e) {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleImageSelect({ target: { files } });
-    }
-  }
-
-  function handleImageSelect(e) {
-    const file = e.target.files[0];
-    if (file) {
-      selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        document.getElementById('preview-img').src = event.target.result;
-        document.getElementById('preview-img').style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  async function uploadProduct() {
-    if (!selectedFile) {
-      alert('Please select an image');
-      return;
-    }
-
-    const name = document.getElementById('product-name').value.trim();
-    const category = document.getElementById('product-category').value;
-    const price = parseFloat(document.getElementById('product-price').value);
-    const description = document.getElementById('product-description').value.trim();
-
-    if (!name || category === 'Select Category' || !price || !description) {
-      alert('Please fill all fields');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('image', selectedFile);
-
-    try {
-      const uploadRes = await fetch(`${API_BASE}/upload`, {
-        method: 'POST',
-        body: formData
+    const statsHtml = `
+      <div class="stat-card">
+        <div class="stat-number">${data.stats.totalUsers || 0}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${data.stats.totalProducts || 0}</div>
+        <div class="stat-label">Total Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${data.stats.totalOrders || 0}</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${data.stats.pendingVerifications || 0}</div>
+        <div class="stat-label">Pending Verifications</div>
+      </div>
+    `;
+    document.getElementById('dashboard-stats').innerHTML = statsHtml;
+    
+    let ordersHtml = '<thead><tr><th>Order ID</th><th>User</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+    if (data.recentOrders && data.recentOrders.length > 0) {
+      data.recentOrders.forEach(order => {
+        ordersHtml += `<tr>
+          <td>${order._id.substring(0, 8)}</td>
+          <td>${order.userId?.name || 'N/A'}</td>
+          <td>₦${(order.total || 0).toLocaleString()}</td>
+          <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 3px;">${order.status || 'pending'}</span></td>
+          <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+        </tr>`;
       });
-      const uploadData = await uploadRes.json();
-
-      if (!uploadRes.ok) {
-        throw new Error(uploadData.error || 'Upload failed');
-      }
-
-      // Now create the product
-      const productRes = await fetch(`${API_BASE}/products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          price,
-          category,
-          description,
-          image: uploadData.path
-        })
+    } else {
+      ordersHtml += '<tr><td colspan="5" class="empty-state">No recent orders</td></tr>';
+    }
+    ordersHtml += '</tbody>';
+    document.getElementById('recent-orders-table').innerHTML = ordersHtml;
+    
+    let usersHtml = '<thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead><tbody>';
+    if (data.recentUsers && data.recentUsers.length > 0) {
+      data.recentUsers.forEach(user => {
+        usersHtml += `<tr>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+        </tr>`;
       });
-
-      const productData = await productRes.json();
-
-      if (productRes.ok) {
-        showMessage('Product uploaded successfully!', 'success');
-        document.getElementById('product-name').value = '';
-        document.getElementById('product-price').value = '';
-        document.getElementById('product-description').value = '';
-        document.getElementById('product-category').value = 'Select Category';
-        document.getElementById('preview-img').style.display = 'none';
-        selectedFile = null;
-        loadProducts();
-      } else {
-        throw new Error(productData.error || 'Product creation failed');
-      }
-    } catch (e) {
-      showMessage('Error: ' + e.message, 'error');
+    } else {
+      usersHtml += '<tr><td colspan="3" class="empty-state">No recent users</td></tr>';
     }
+    usersHtml += '</tbody>';
+    document.getElementById('recent-users-table').innerHTML = usersHtml;
+  } catch (err) {
+    console.error('Error loading dashboard:', err);
+    alert('Failed to load dashboard. Check console for details.');
   }
+}
 
-  async function loadProducts() {
-    try {
-      const products = await fetch(`${API_BASE}/products`).then(r => r.json());
-      const tbody = document.getElementById('products-tbody');
-      tbody.innerHTML = '';
-
-      if (Array.isArray(products) && products.length > 0) {
-        products.forEach(p => {
-          const row = tbody.insertRow();
-          row.innerHTML = `
-            <td>${p.id || p._id}</td>
-            <td>${p.name}</td>
-            <td>${p.category}</td>
-            <td>$${p.price}</td>
-            <td><img src="${p.image}" style="max-width: 50px; border-radius: 5px;" alt=""></td>
-            <td><button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deleteProduct('${p._id}')">Delete</button></td>
-          `;
-        });
-      } else {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No products</td></tr>';
-      }
-    } catch (e) {
-      console.error('Products error:', e);
+async function loadUsers(page) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/users?page=${page}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    
+    let html = '<thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Actions</th></tr></thead><tbody>';
+    if (data.users && data.users.length > 0) {
+      data.users.forEach(user => {
+        html += `<tr>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.phone || 'N/A'}</td>
+          <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+          <td><button class="btn btn-delete" onclick="deleteUser('${user._id}')">Delete</button></td>
+        </tr>`;
+      });
+    } else {
+      html += '<tr><td colspan="5" class="empty-state">No users found</td></tr>';
     }
+    html += '</tbody>';
+    document.getElementById('users-table').innerHTML = html;
+  } catch (err) {
+    console.error('Error loading users:', err);
   }
+}
 
-  async function deleteProduct(id) {
-    if (confirm('Delete this product?')) {
-      try {
-        await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
-        loadProducts();
-      } catch (e) {
-        alert('Error deleting product');
-      }
+async function loadOrders(page) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/orders?page=${page}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    
+    let html = '<thead><tr><th>Order ID</th><th>User</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+    if (data.orders && data.orders.length > 0) {
+      data.orders.forEach(order => {
+        html += `<tr>
+          <td>${order._id.substring(0, 8)}</td>
+          <td>${order.userId?.name || 'N/A'}</td>
+          <td>₦${(order.total || 0).toLocaleString()}</td>
+          <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 3px;">${order.status || 'pending'}</span></td>
+          <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="btn btn-edit" onclick="updateOrderStatus('${order._id}')">Update</button>
+          </td>
+        </tr>`;
+      });
+    } else {
+      html += '<tr><td colspan="6" class="empty-state">No orders found</td></tr>';
     }
+    html += '</tbody>';
+    document.getElementById('orders-table').innerHTML = html;
+  } catch (err) {
+    console.error('Error loading orders:', err);
   }
+}
 
-  async function loadOrders() {
-    try {
-      const orders = await fetch(`${API_BASE}/orders`).then(r => r.json());
-      const tbody = document.getElementById('orders-tbody');
-      tbody.innerHTML = '';
-
-      if (Array.isArray(orders) && orders.length > 0) {
-        orders.forEach(o => {
-          const itemCount = Array.isArray(o.items) ? o.items.length : 0;
-          const row = tbody.insertRow();
-          row.innerHTML = `
-            <td>${o.id || o._id}</td>
-            <td>${o.contact?.name || 'Anonymous'}</td>
-            <td>${itemCount} items</td>
-            <td>$${o.total}</td>
-            <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-          `;
-        });
-      } else {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No orders</td></tr>';
-      }
-    } catch (e) {
-      console.error('Orders error:', e);
+async function loadProducts(page) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/products?page=${page}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    
+    let html = '<thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+    if (data.products && data.products.length > 0) {
+      data.products.forEach(product => {
+        html += `<tr>
+          <td>${product.name}</td>
+          <td>${product.category || 'N/A'}</td>
+          <td>₦${(product.price || 0).toLocaleString()}</td>
+          <td>${new Date(product.createdAt).toLocaleDateString()}</td>
+          <td><button class="btn btn-delete" onclick="deleteProduct('${product._id}')">Delete</button></td>
+        </tr>`;
+      });
+    } else {
+      html += '<tr><td colspan="5" class="empty-state">No products found</td></tr>';
     }
+    html += '</tbody>';
+    document.getElementById('products-table').innerHTML = html;
+  } catch (err) {
+    console.error('Error loading products:', err);
   }
+}
 
-  function showMessage(msg, type) {
-    const el = document.getElementById('upload-message');
-    el.textContent = msg;
-    el.className = `alert alert-${type}`;
-    el.classList.remove('hidden');
-    setTimeout(() => el.classList.add('hidden'), 5000);
+async function loadVerifications(page) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/verifications?status=pending&page=${page}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    
+    let html = '<thead><tr><th>User</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+    if (data.verifications && data.verifications.length > 0) {
+      data.verifications.forEach(v => {
+        html += `<tr>
+          <td>${v.userId?.name || 'N/A'}</td>
+          <td>${v.verificationType}</td>
+          <td><span style="background: #fff3e0; color: #e65100; padding: 4px 8px; border-radius: 3px;">${v.status}</span></td>
+          <td>${new Date(v.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="btn btn-approve" onclick="approveVerification('${v._id}')">Approve</button>
+            <button class="btn btn-reject" onclick="rejectVerification('${v._id}')">Reject</button>
+          </td>
+        </tr>`;
+      });
+    } else {
+      html += '<tr><td colspan="5" class="empty-state">No pending verifications</td></tr>';
+    }
+    html += '</tbody>';
+    document.getElementById('verifications-table').innerHTML = html;
+  } catch (err) {
+    console.error('Error loading verifications:', err);
   }
+}
 
-  // Init
-  checkAuth();
+async function deleteUser(userId) {
+  if (!confirm('Delete this user?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (res.ok) {
+      alert('User deleted');
+      loadUsers(1);
+    }
+  } catch (err) {
+    alert('Error deleting user');
+  }
+}
+
+async function deleteProduct(productId) {
+  if (!confirm('Delete this product?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/products/${productId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (res.ok) {
+      alert('Product deleted');
+      loadProducts(1);
+    }
+  } catch (err) {
+    alert('Error deleting product');
+  }
+}
+
+async function approveVerification(verificationId) {
+  try {
+    const res = await fetch(`${API_BASE}/admin/verifications/${verificationId}/approve`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (res.ok) {
+      alert('Verification approved');
+      loadVerifications(1);
+    }
+  } catch (err) {
+    alert('Error approving verification');
+  }
+}
+
+async function rejectVerification(verificationId) {
+  const reason = prompt('Enter rejection reason:');
+  if (!reason) return;
+  try {
+    const res = await fetch(`${API_BASE}/admin/verifications/${verificationId}/reject`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason })
+    });
+    if (res.ok) {
+      alert('Verification rejected');
+      loadVerifications(1);
+    }
+  } catch (err) {
+    alert('Error rejecting verification');
+  }
+}
+
+function updateOrderStatus(orderId) {
+  const status = prompt('Enter new status (pending, processing, shipped, delivered):');
+  if (!status) return;
+  
+  fetch(`${API_BASE}/admin/orders/${orderId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${adminToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ status })
+  }).then(res => {
+    if (res.ok) {
+      alert('Order status updated');
+      loadOrders(1);
+    }
+  }).catch(err => alert('Error updating order'));
+}
+
+function logout() {
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_info');
+  adminToken = null;
+  location.reload();
+}
 </script>
 
 </body>

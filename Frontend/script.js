@@ -391,32 +391,67 @@ function handleSignup() {
     e.preventDefault();
     const name = document.getElementById('signup-name').value.trim();
     const email = document.getElementById('signup-email').value.trim();
+    const phone = document.getElementById('signup-phone').value.trim();
+    const gender = document.getElementById('signup-gender').value;
     const password = document.getElementById('signup-password').value;
     const errorEl = document.getElementById('signup-error');
+    const btn = form.querySelector('button');
 
-    if (!name || !email || !password) {
-      if (errorEl) { errorEl.textContent = 'All fields required'; errorEl.style.display = 'block'; }
+    if (!name || !email || !phone || !gender || !password) {
+      if (errorEl) { errorEl.textContent = 'All fields are required'; errorEl.style.display = 'block'; }
       return;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      if (errorEl) { errorEl.textContent = 'Please enter a valid email address'; errorEl.style.display = 'block'; }
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      if (errorEl) { errorEl.textContent = 'Password must be at least 6 characters'; errorEl.style.display = 'block'; }
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (btn) btn.textContent = 'Creating account...';
+
     try {
+      console.log('📝 Signing up with email:', email);
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, phone, gender, password })
       });
       const data = await res.json();
+      
       if (res.ok && (data.success || data.token)) {
         localStorage.setItem('e4a_token', data.token || '');
-        localStorage.setItem('e4a_user', JSON.stringify(data.user || { name, email }));
-        alert('Account created! Redirecting...');
+        localStorage.setItem('e4a_user', JSON.stringify(data.user || { name, email, phone, gender }));
+        
+        // Clear error message
+        if (errorEl) errorEl.style.display = 'none';
+        
+        // Show welcome message with email info
+        alert(`🎉 Welcome ${name}!\n\nWe've sent a welcome email to ${email}. Please check your inbox (and spam folder) to confirm your account.\n\nRedirecting to marketplace...`);
         window.location = 'index.html';
       } else {
-        if (errorEl) { errorEl.textContent = data.error || 'Signup failed'; errorEl.style.display = 'block'; }
+        if (errorEl) { 
+          errorEl.textContent = data.error || 'Signup failed. Please try again.'; 
+          errorEl.style.display = 'block'; 
+        }
       }
     } catch (err) {
-      console.error('Signup error:', err);
-      if (errorEl) { errorEl.textContent = 'Network error. Try again.'; errorEl.style.display = 'block'; }
+      console.error('❌ Signup error:', err);
+      if (errorEl) { 
+        errorEl.textContent = 'Connection error. Please check your internet and try again.'; 
+        errorEl.style.display = 'block'; 
+      }
+    } finally {
+      if (btn) btn.disabled = false;
+      if (btn) btn.textContent = 'Create Account';
     }
   });
 }
@@ -424,16 +459,40 @@ function handleSignup() {
 function handleSignin() {
   const form = document.getElementById('signin-form');
   if (!form) return;
+  
+  // Auto-focus email input
+  const emailInput = document.getElementById('signin-email');
+  if (emailInput) {
+    emailInput.focus();
+    // Show hint when user interacts with email
+    emailInput.addEventListener('focus', () => {
+      const hint = document.getElementById('email-hint');
+      if (hint) hint.style.display = 'block';
+    });
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('signin-email').value.trim();
     const password = document.getElementById('signin-password').value;
+    const rememberMe = document.getElementById('signin-remember')?.checked;
     const errorEl = document.getElementById('signin-error');
+    const btn = document.getElementById('signin-btn');
 
     if (!email || !password) {
-      if (errorEl) { errorEl.textContent = 'All fields required'; errorEl.style.display = 'block'; }
+      if (errorEl) { errorEl.textContent = 'Email and password are required'; errorEl.style.display = 'block'; }
       return;
     }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      if (errorEl) { errorEl.textContent = 'Please enter a valid email address'; errorEl.style.display = 'block'; }
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (btn) btn.textContent = 'Signing in...';
 
     try {
       console.log('🔐 Signing in...', { email, API_BASE });
@@ -448,17 +507,121 @@ function handleSignin() {
       if (res.ok && (data.success || data.token)) {
         localStorage.setItem('e4a_token', data.token || '');
         localStorage.setItem('e4a_user', JSON.stringify(data.user || { email }));
-        alert('Signed in! Redirecting...');
+        
+        // Remember me functionality
+        if (rememberMe) {
+          localStorage.setItem('e4a_remember_email', email);
+        } else {
+          localStorage.removeItem('e4a_remember_email');
+        }
+
+        // Clear error message
+        if (errorEl) errorEl.style.display = 'none';
+        alert('Welcome back! Redirecting...');
         window.location = 'index.html';
       } else {
-        if (errorEl) { errorEl.textContent = data.error || 'Invalid credentials'; errorEl.style.display = 'block'; }
+        if (errorEl) { errorEl.textContent = data.error || 'Invalid email or password'; errorEl.style.display = 'block'; }
       }
     } catch (err) {
       console.error('❌ Signin error:', err.message);
       console.error('Full error:', err);
-      if (errorEl) { errorEl.textContent = 'Network error. Try again. Check console (F12) for details.'; errorEl.style.display = 'block'; }
+      if (errorEl) { errorEl.textContent = 'Connection error. Please check your internet and try again.'; errorEl.style.display = 'block'; }
+    } finally {
+      if (btn) btn.disabled = false;
+      if (btn) btn.textContent = 'Sign In with Email';
     }
   });
+
+  // Handle forgot password
+  const forgotLink = document.getElementById('forgot-password-link');
+  const modal = document.getElementById('forgot-password-modal');
+  const closeBtn = document.querySelector('.close');
+  const forgotForm = document.getElementById('forgot-form');
+
+  if (forgotLink && modal) {
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.style.display = 'flex';
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+        document.getElementById('forgot-email').value = '';
+        document.getElementById('forgot-error').style.display = 'none';
+        document.getElementById('forgot-success').style.display = 'none';
+      });
+    }
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  }
+
+  if (forgotForm) {
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const forgotEmail = document.getElementById('forgot-email').value.trim();
+      const forgotError = document.getElementById('forgot-error');
+      const forgotSuccess = document.getElementById('forgot-success');
+      const submitBtn = forgotForm.querySelector('button');
+
+      if (!forgotEmail) {
+        forgotError.textContent = 'Please enter your email address';
+        forgotError.style.display = 'block';
+        forgotSuccess.style.display = 'none';
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(forgotEmail)) {
+        forgotError.textContent = 'Please enter a valid email address';
+        forgotError.style.display = 'block';
+        forgotSuccess.style.display = 'none';
+        return;
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitBtn) submitBtn.textContent = 'Sending...';
+
+      try {
+        // In a real app, you'd have a backend endpoint for password reset
+        // For now, we'll show a placeholder response
+        console.log('📧 Password reset requested for:', forgotEmail);
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        forgotSuccess.textContent = `Password reset instructions have been sent to ${forgotEmail}. Please check your email.`;
+        forgotSuccess.style.display = 'block';
+        forgotError.style.display = 'none';
+        
+        setTimeout(() => {
+          modal.style.display = 'none';
+          document.getElementById('forgot-email').value = '';
+          forgotSuccess.style.display = 'none';
+        }, 3000);
+      } catch (err) {
+        console.error('❌ Password reset error:', err);
+        forgotError.textContent = 'Error sending reset email. Try again later.';
+        forgotError.style.display = 'block';
+        forgotSuccess.style.display = 'none';
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn) submitBtn.textContent = 'Send Reset Link';
+      }
+    });
+  }
+
+  // Pre-fill email if "remember me" was checked before
+  const rememberedEmail = localStorage.getItem('e4a_remember_email');
+  if (rememberedEmail && emailInput) {
+    emailInput.value = rememberedEmail;
+    const rememberCheckbox = document.getElementById('signin-remember');
+    if (rememberCheckbox) rememberCheckbox.checked = true;
+  }
 }
 
 function handleContact() {

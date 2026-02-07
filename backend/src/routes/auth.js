@@ -2,23 +2,30 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_this';
 
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    console.log('[auth/register] payload:', { name, email: email && email.slice(0,3) + '***' });
-    if (!name || !email || !password) return res.status(400).json({ error: 'Missing fields' });
+    const { name, email, phone, gender, password } = req.body;
+    console.log('[auth/register] payload:', { name, email: email && email.slice(0,3) + '***', phone, gender });
+    if (!name || !email || !phone || !gender || !password) return res.status(400).json({ error: 'Missing fields' });
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ error: 'Email already registered' });
     const hash = await bcrypt.hash(password, 10);
-    const u = new User({ name, email, password: hash });
+    const u = new User({ name, email, phone, gender, password: hash });
     await u.save();
     console.log('[auth/register] created user id=', u._id.toString());
+    
+    // Send welcome email (async, don't block signup)
+    emailService.sendWelcomeEmail(email, name).catch(err => {
+      console.error('[auth/register] email sending error:', err.message);
+    });
+    
     const token = jwt.sign({ id: u._id, email: u.email }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, user: { _id: u._id.toString(), name: u.name, email: u.email }, token });
+    res.json({ success: true, user: { _id: u._id.toString(), name: u.name, email: u.email, phone: u.phone, gender: u.gender }, token });
   } catch (err) {
     console.error('[auth/register] error:', err);
     res.status(500).json({ error: 'Server error during registration' });
@@ -68,7 +75,7 @@ router.post('/login', async (req, res) => {
     
     console.log('[auth/login] password matched, issuing token');
     const token = jwt.sign({ id: u._id, email: u.email }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, user: { _id: u._id.toString(), name: u.name, email: u.email }, token });
+    res.json({ success: true, user: { _id: u._id.toString(), name: u.name, email: u.email, phone: u.phone, gender: u.gender }, token });
   } catch (err) {
     console.error('[auth/login] error:', err);
     res.status(500).json({ error: 'Server error during login' });

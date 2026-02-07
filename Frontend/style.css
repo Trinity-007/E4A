@@ -53,7 +53,8 @@ main{padding:40px 30px}
 /* auth */
 .auth-body{display:flex;align-items:center;justify-content:center;min-height:80vh;background:linear-gradient(135deg,#06112b,#0d2546);padding:30px}
 .auth-container{background:#fff;padding:28px;border-radius:10px;max-width:420px;width:100%;box-shadow:0 8px 30px rgba(16,32,59,0.12);text-align:center}
-.auth-container input, .auth-container textarea, .contact-form input, .contact-form textarea{width:100%;padding:12px;margin-bottom:10px;border-radius:8px;border:1px solid #e6eef8}
+.auth-container input, .auth-container select, .auth-container textarea, .contact-form input, .contact-form textarea{width:100%;padding:12px;margin-bottom:10px;border-radius:8px;border:1px solid #e6eef8;font-family:inherit}
+.auth-container select{appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/csvg%3e");background-repeat:no-repeat;background-position:right 8px center;background-size:1.5em;padding-right:2.5em}
 
 /* content cards */
 .content-card{background:#fff;padding:28px;border-radius:10px;box-shadow:0 6px 18px rgba(16,32,59,0.04);max-width:900px;margin:40px auto;text-align:center}
@@ -113,3 +114,38 @@ footer{background:linear-gradient(90deg,#06112b,#0d2546);color:#fff;padding:20px
 /* Order confirmation tweaks */
 .order-confirmation ul{list-style:disc;padding-left:20px;margin:12px 0}
 .order-confirmation p{color:#32414a}
+
+/* Enhanced Auth Form Styles */
+.auth-subtitle{color:#6b7b8f;margin-bottom:24px;font-size:0.95rem}
+.form-group{margin-bottom:18px;text-align:left}
+.form-label{display:block;margin-bottom:6px;font-weight:600;color:#10203b;font-size:0.9rem}
+.form-group input[type="email"],
+.form-group input[type="password"]{width:100%;padding:12px 14px;border-radius:8px;border:1.5px solid #e6eef8;font-family:inherit;transition:border-color .2s ease,box-shadow .2s ease}
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus{outline:none;border-color:#f5c518;box-shadow:0 0 0 3px rgba(245,197,24,0.1)}
+.email-hint{display:block;font-size:0.85em;color:#666;margin-top:5px}
+
+.form-group.checkbox{display:flex;align-items:center;margin-bottom:18px}
+.form-group.checkbox input[type="checkbox"]{width:auto;margin:0 8px 0 0}
+.form-group.checkbox label{margin:0;font-weight:500;cursor:pointer}
+
+/* Auth Links */
+.auth-links{margin-top:24px;border-top:1px solid #e6eef8;padding-top:18px}
+.auth-links p{margin-bottom:8px;font-size:0.9rem}
+.auth-links a{color:#f5c518;text-decoration:none;font-weight:600;transition:color .2s ease}
+.auth-links a:hover{color:#e6b500}
+
+/* Submit Button Enhancement */
+#signin-btn{width:100%;padding:12px !important;font-size:1rem;margin-bottom:0 !important;transition:background-color .2s ease,transform .1s ease}
+#signin-btn:hover{transform:translateY(-2px)}
+#signin-btn:active{transform:translateY(0)}
+
+/* Modal Styles */
+.modal{position:fixed;z-index:100;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center}
+.modal-content{background-color:#fff;padding:28px;border-radius:10px;max-width:400px;width:90%;box-shadow:0 8px 30px rgba(16,32,59,0.15)}
+.modal-content h3{margin-bottom:12px;color:#06112b}
+.modal-content p{margin-bottom:16px;color:#6b7b8f;font-size:0.9rem}
+.modal-content input{width:100%;padding:12px;border-radius:8px;border:1.5px solid #e6eef8;margin-bottom:10px;font-family:inherit}
+.modal-content input:focus{outline:none;border-color:#f5c518;box-shadow:0 0 0 3px rgba(245,197,24,0.1)}
+.close{color:#10203b;float:right;font-size:1.8rem;font-weight:700;cursor:pointer;transition:color .2s ease}
+.close:hover{color:#f5c518}

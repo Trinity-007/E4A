@@ -5,19 +5,79 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sign Up - E4A</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-group { margin-bottom: 16px; text-align: left; }
+    .form-label { display: block; margin-bottom: 6px; font-weight: 600; color: #10203b; font-size: 0.9rem; }
+    .auth-container input[type="text"],
+    .auth-container input[type="email"],
+    .auth-container input[type="tel"],
+    .auth-container input[type="password"],
+    .auth-container select {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 0 !important;
+      border-radius: 8px;
+      border: 1.5px solid #e6eef8;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color .2s ease,box-shadow .2s ease;
+    }
+    .auth-container input:focus,
+    .auth-container select:focus {
+      outline: none;
+      border-color: #f5c518;
+      box-shadow: 0 0 0 3px rgba(245,197,24,0.1);
+    }
+    .email-info { background: #e3f2fd; border-left: 4px solid #1976d2; padding: 12px; border-radius: 4px; margin: 15px 0; font-size: 0.9rem; color: #1565c0; }
+  </style>
 </head>
 <body class="auth-body">
   <div class="auth-container">
     <a class="brand-link" href="index.html">E4A</a>
     <h2>Create an account</h2>
+    <p class="auth-subtitle">Join E4A Marketplace to start buying and selling</p>
+    
     <form id="signup-form">
-      <input type="text" id="signup-name" placeholder="Full name" required />
-      <input type="email" id="signup-email" placeholder="Email" required />
-      <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required minlength="6" />
-      <button class="btn gold" type="submit">Create Account</button>
+      <div class="form-group">
+        <label class="form-label" for="signup-name">Full Name</label>
+        <input type="text" id="signup-name" placeholder="Enter your full name" required />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="signup-email">Email Address</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" required />
+        <div class="email-info" style="margin-top: 6px;">
+          ✉️ We'll send a confirmation email to activate your account
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="signup-phone">Phone Number</label>
+        <input type="tel" id="signup-phone" placeholder="+234 801 234 5678" required />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="signup-gender">Gender</label>
+        <select id="signup-gender" required>
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="signup-password">Password</label>
+        <input type="password" id="signup-password" placeholder="Minimum 6 characters" required minlength="6" />
+      </div>
+      
+      <button class="btn gold" type="submit" style="width: 100%;">Create Account</button>
     </form>
-    <p id="signup-error" style="color:red;margin-top:10px;display:none;"></p>
-    <p>Already have an account? <a href="signin.html">Sign in</a></p>
+    <p id="signup-error" style="color:#d32f2f;margin-top:15px;display:none;padding:10px;background:#ffebee;border-radius:4px;"></p>
+    
+    <div class="auth-links" style="margin-top: 24px; border-top: 1px solid #e6eef8; padding-top: 18px;">
+      <p>Already have an account? <a href="signin.html" style="color: #f5c518; text-decoration: none; font-weight: 600;">Sign in</a></p>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>

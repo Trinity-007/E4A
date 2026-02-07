@@ -136,6 +136,7 @@
         <div class="nav-right">
             <a href="index.html">Home</a>
             <a href="shop.html">Shop</a>
+            <a href="sell.html">Sell</a>
             <a href="cart.html">Cart</a>
             <a href="account.html" class="btn">My Account</a>
         </div>
@@ -152,6 +153,8 @@
             <div class="user-info">
                 <h2 id="user-name">Loading...</h2>
                 <p id="user-email">Loading...</p>
+                <p id="user-phone">Loading...</p>
+                <p id="user-gender">Loading...</p>
                 <p id="user-member">Member since: Loading...</p>
                 <div class="user-stats">
                     <div class="stat">
@@ -280,6 +283,15 @@
                         <div class="form-group">
                             <label>Phone Number</label>
                             <input type="tel" id="edit-phone" placeholder="Enter your phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="edit-gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <button class="save-btn" onclick="saveProfile()">Save Profile</button>
                     </div>
@@ -416,12 +428,15 @@
 
             document.getElementById('user-name').textContent = user.name || 'User';
             document.getElementById('user-email').textContent = user.email || '';
+            document.getElementById('user-phone').textContent = 'Phone: ' + (user.phone || 'Not provided');
+            document.getElementById('user-gender').textContent = 'Gender: ' + (user.gender || 'Not specified');
             document.getElementById('user-member').textContent = 'Member since: Jan 2026';
 
             // Pre-fill settings form
             document.getElementById('edit-name').value = user.name || '';
             document.getElementById('edit-email').value = user.email || '';
             document.getElementById('edit-phone').value = user.phone || '';
+            document.getElementById('edit-gender').value = user.gender || '';
         }
 
         function loadOrders() {
@@ -539,11 +554,14 @@
 
             user.name = document.getElementById('edit-name').value;
             user.phone = document.getElementById('edit-phone').value;
+            user.gender = document.getElementById('edit-gender').value;
 
             localStorage.setItem('e4a_user', JSON.stringify(user));
 
             document.getElementById('save-msg').style.display = 'block';
             document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-phone').textContent = 'Phone: ' + user.phone;
+            document.getElementById('user-gender').textContent = 'Gender: ' + user.gender;
             setTimeout(() => {
                 document.getElementById('save-msg').style.display = 'none';
             }, 3000);

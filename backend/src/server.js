@@ -11,6 +11,7 @@ const uploadRoutes = require('./routes/upload');
 const negotiationRoutes = require('./routes/negotiations');
 const verificationRoutes = require('./routes/verifications');
 const sellerAPIRoutes = require('./routes/seller-api');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/negotiations', negotiationRoutes);
 app.use('/api/verifications', verificationRoutes);
 app.use('/api/seller', sellerAPIRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
